@@ -1,11 +1,12 @@
 ---
 interface Props {
   layout?: "12" | "6-6" | "4-4-4" | "3-3-3-3" | "4-8" | "8-4";
+  id?: string;
 }
-const { layout = "12" } = Astro.props;
+const { layout = "12", id } = Astro.props;
 ---
 
-<div class={`grid layout-${layout}`}><slot /></div>
+<div class={`grid layout-${layout}`} id={id}><slot /></div>
 
 <style>
   .grid {
