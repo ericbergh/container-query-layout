@@ -1,0 +1,96 @@
+---
+const { groupNumber, cardNumber } = Astro.props;
+import { Image } from "astro:assets";
+import illustration1 from "../assets/illustration-1.avif";
+import illustration2 from "../assets/illustration-2.avif";
+import illustration3 from "../assets/illustration-3.avif";
+import illustration4 from "../assets/illustration-4.avif";
+---
+
+<div class="card">
+  <Image
+    src={groupNumber === 1
+      ? illustration1
+      : groupNumber === 2
+        ? illustration2
+        : groupNumber === 3
+          ? illustration3
+          : illustration4}
+    alt="Illustration"
+  />
+  <div class="text">
+    <h3>Group {groupNumber} | Card {cardNumber}</h3>
+    <p>
+      Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio quia
+      enim voluptates quisquam non eius.
+    </p>
+  </div>
+</div>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background-color: #f6f6f6;
+    border-radius: 4px;
+    overflow: hidden;
+
+    img {
+      width: unset;
+      height: unset;
+      max-width: 100%;
+      object-fit: cover;
+      aspect-ratio: 16 / 9;
+    }
+
+    .text {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 8px 12px 16px 12px;
+
+      h3,
+      p {
+        margin: 0;
+      }
+    }
+  }
+
+  @container content-area (min-width: 400px) {
+    .card {
+      flex-direction: row;
+
+      img {
+        aspect-ratio: 1;
+        height: 100%;
+        max-width: 200px;
+      }
+
+      .text {
+        h3 {
+          font-size: 18px;
+          margin-top: auto;
+          width: 200px;
+        }
+      }
+    }
+  }
+
+  @container content-area (min-width: 1120px) {
+    .card {
+      flex-direction: row;
+
+      img {
+        aspect-ratio: unset;
+      }
+
+      .text {
+        h3 {
+          font-size: 18px;
+          margin-top: auto;
+        }
+      }
+    }
+  }
+</style>

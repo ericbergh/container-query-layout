@@ -1,11 +1,100 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import GridContainer from "../components/grid_container.astro";
+import Grid from "../components/grid.astro";
+import ContentArea from "../components/content_area.astro";
+import Card from "../components/card.astro";
+import Layout from "../layouts/layout.astro";
 ---
 
 <Layout>
-	<Welcome />
+  <div class="description">
+    <h2>Nestable grid with container queries</h2>
+    <ul>
+      <li>This grid can either have content or grids as immediate children.</li>
+      <li>The max width of the content area is set to 1120px.</li>
+      <li>The width of the grid items may never be less than 256px.</li>
+      <li>The column gap is either 0, 16px or 32px but we account for 32px.</li>
+      <li>
+        We assume that each grid will have the same number of immediate children
+        as it does columns.
+      </li>
+    </ul>
+  </div>
+  <div class="grid-showcase">
+    <section>
+      <h2>4 column grid with 4 nested grids of 4 cards</h2>
+      <GridContainer>
+        <Grid maxCol={4}>
+          {
+            Array.from({ length: 4 }).map((_, groupIndex) => (
+              <GridContainer key={groupIndex}>
+                <Grid maxCol={3}>
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <ContentArea key={index}>
+                      <Card
+                        groupNumber={groupIndex + 1}
+                        cardNumber={index + 1}
+                      />
+                    </ContentArea>
+                  ))}
+                </Grid>
+              </GridContainer>
+            ))
+          }
+        </Grid>
+      </GridContainer>
+    </section>
+    <section>
+      <h2>3 column grid with 3 nested grids of 3 cards</h2>
+      <GridContainer>
+        <Grid maxCol={3}>
+          {
+            Array.from({ length: 3 }).map((_, groupIndex) => (
+              <GridContainer key={groupIndex}>
+                <Grid maxCol={3}>
+                  {Array.from({ length: 3 }).map((_, index) => (
+                    <ContentArea key={index}>
+                      <Card
+                        groupNumber={groupIndex + 1}
+                        cardNumber={index + 1}
+                      />
+                    </ContentArea>
+                  ))}
+                </Grid>
+              </GridContainer>
+            ))
+          }
+        </Grid>
+      </GridContainer>
+    </section>
+    <section>
+      <h2>3 column grid with 3 cards</h2>
+      <GridContainer>
+        <Grid maxCol={3}>
+          {
+            Array.from({ length: 3 }).map((_, index) => (
+              <ContentArea key={index}>
+                <Card groupNumber={1} cardNumber={index + 1} />
+              </ContentArea>
+            ))
+          }
+        </Grid>
+      </GridContainer>
+    </section>
+  </div>
 </Layout>
+
+<style>
+  .grid-showcase {
+    display: grid;
+    gap: 64px;
+  }
+
+  .description {
+    margin: 32px 0 64px 0;
+  }
+
+  ul {
+    line-height: 1.5;
+  }
+</style>
