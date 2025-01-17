@@ -8,10 +8,9 @@ import Layout from "../layouts/layout.astro";
 
 <Layout>
   <div class="description">
-    <h2>Nestable grid with container queries</h2>
+    <h2>The One Grid</h2>
     <ul>
       <li>This grid can either have content or grids as immediate children.</li>
-      <li>The max width of the content area is set to 1120px.</li>
       <li>The width of the grid items may never be less than 256px.</li>
       <li>The column gap is either 0, 16px or 32px but we account for 32px.</li>
       <li>
@@ -24,11 +23,11 @@ import Layout from "../layouts/layout.astro";
     <section>
       <h2>4 column grid with 4 nested grids of 4 cards</h2>
       <GridContainer>
-        <Grid maxCol={4}>
+        <Grid layout="3-3-3-3">
           {
             Array.from({ length: 4 }).map((_, groupIndex) => (
               <GridContainer key={groupIndex}>
-                <Grid maxCol={3}>
+                <Grid layout="12">
                   {Array.from({ length: 4 }).map((_, index) => (
                     <ContentArea key={index}>
                       <Card
@@ -47,11 +46,11 @@ import Layout from "../layouts/layout.astro";
     <section>
       <h2>3 column grid with 3 nested grids of 3 cards</h2>
       <GridContainer>
-        <Grid maxCol={3}>
+        <Grid layout="4-4-4">
           {
             Array.from({ length: 3 }).map((_, groupIndex) => (
               <GridContainer key={groupIndex}>
-                <Grid maxCol={3}>
+                <Grid layout="4-4-4">
                   {Array.from({ length: 3 }).map((_, index) => (
                     <ContentArea key={index}>
                       <Card
@@ -70,7 +69,7 @@ import Layout from "../layouts/layout.astro";
     <section>
       <h2>3 column grid with 3 cards</h2>
       <GridContainer>
-        <Grid maxCol={3}>
+        <Grid layout="4-4-4">
           {
             Array.from({ length: 3 }).map((_, index) => (
               <ContentArea key={index}>
@@ -78,6 +77,59 @@ import Layout from "../layouts/layout.astro";
               </ContentArea>
             ))
           }
+        </Grid>
+      </GridContainer>
+    </section>
+    <section>
+      <h2>2 column 4/8 grid with 2 cards</h2>
+      <GridContainer>
+        <Grid layout="4-8">
+          {
+            Array.from({ length: 2 }).map((_, index) => (
+              <ContentArea key={index}>
+                <Card groupNumber={1} cardNumber={index + 1} />
+              </ContentArea>
+            ))
+          }
+        </Grid>
+      </GridContainer>
+    </section>
+    <section>
+      <h2>2 column 8/4 grid with 2 cards</h2>
+      <GridContainer>
+        <Grid layout="8-4">
+          {
+            Array.from({ length: 2 }).map((_, index) => (
+              <ContentArea key={index}>
+                <Card groupNumber={1} cardNumber={index + 1} />
+              </ContentArea>
+            ))
+          }
+        </Grid>
+      </GridContainer>
+    </section>
+    <section>
+      <h2>2 column 8/4 grid with 2 nested 1 column grids of 2 cards</h2>
+      <GridContainer>
+        <Grid layout="8-4">
+          <Grid layout="12">
+            {
+              Array.from({ length: 2 }).map((_, index) => (
+                <ContentArea key={index}>
+                  <Card groupNumber={1} cardNumber={index + 1} />
+                </ContentArea>
+              ))
+            }
+          </Grid>
+          <Grid layout="12">
+            {
+              Array.from({ length: 2 }).map((_, index) => (
+                <ContentArea key={index}>
+                  <Card groupNumber={1} cardNumber={index + 1} />
+                </ContentArea>
+              ))
+            }
+          </Grid>
         </Grid>
       </GridContainer>
     </section>

@@ -1,8 +1,11 @@
 ---
-const { maxCol } = Astro.props;
+interface Props {
+  layout?: "12" | "6-6" | "4-4-4" | "3-3-3-3" | "4-8" | "8-4";
+}
+const { layout = "12" } = Astro.props;
 ---
 
-<div class={`grid max-col-${maxCol}`}><slot /></div>
+<div class={`grid layout-${layout}`}><slot /></div>
 
 <style>
   .grid {
@@ -17,51 +20,83 @@ const { maxCol } = Astro.props;
   Minimum content area of 256px x 2 = 512px
   The gap takes up 32px x 1 = 32px
   512px + 32px = 544px
-*/
-@container grid-container (min-width: 544px) {
-  .grid {
-    &.max-col-2, &.max-col-4, &.max-col-3 {
-      grid-template-columns: repeat(2, 1fr);
-    }
+  */
+  @container grid-container (min-width: 544px) {
+    .grid {
+      &.layout-6-6,
+      &.layout-4-4-4,
+      &.layout-3-3-3-3,
+      &.layout-4-8,
+      &.layout-8-4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
 
-    &.max-col-3 {
-      .grid-container:nth-child(n+3), .content-area:nth-child(n+3) {
-        grid-column: -1 / 1;
+      /* 
+      800px wide container for 4-8/8-4 layouts
+      ---
+      4fr column (1/3) minimum width = 256px
+      8fr column (2/3) = 512px
+      Gap = 32px
+      Total = 800px
+      */
+      &.layout-4-8,
+      &.layout-8-4 {
+        grid-template-columns: 1fr;
+      }
+
+      &.layout-4-4-4 {
+        .grid-container:nth-child(n + 3),
+        .content-area:nth-child(n + 3) {
+          grid-column: -1 / 1;
+        }
       }
     }
   }
 
-/* 
+  @container grid-container (min-width: 800px) {
+    .grid {
+      &.layout-4-8 {
+        grid-template-columns: 4fr 8fr;
+      }
+
+      &.layout-8-4 {
+        grid-template-columns: 8fr 4fr;
+      }
+    }
+  }
+
+  /* 
   832px wide container = 3 columns
   ---
   Minimum content area of 256px x 3 = 768px
   The gap takes up 32px x 2 = 64px
   768px + 64px = 832px
-*/
-@container grid-container (min-width: 832px) {
-  .grid {
-    &.max-col-3 {
-      grid-template-columns: repeat(3, 1fr);
+  */
+  @container grid-container (min-width: 832px) {
+    .grid {
+      &.layout-4-4-4 {
+        grid-template-columns: repeat(3, 1fr);
 
-      .grid-container:nth-child(n+3), .content-area:nth-child(n+3) {
-        grid-column: unset;
+        .grid-container:nth-child(n + 3),
+        .content-area:nth-child(n + 3) {
+          grid-column: unset;
+        }
       }
     }
   }
-}
 
-/* 
+  /* 
   1120px wide container = 4 columns
   ---
   Minimum content area of 256px x 4 = 1024px
   The gap takes up 32px x 3 = 96px
   1024px + 96px = 1120px
-*/
-@container grid-container (min-width: 1120px) {
-  .grid {
-    &.max-col-4 {
-      grid-template-columns: repeat(4, 1fr);
+  */
+  @container grid-container (min-width: 1120px) {
+    .grid {
+      &.layout-3-3-3-3 {
+        grid-template-columns: repeat(4, 1fr);
+      }
     }
   }
-}
 </style>

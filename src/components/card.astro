@@ -1,4 +1,8 @@
 ---
+interface Props {
+  groupNumber: number;
+  cardNumber: number;
+}
 const { groupNumber, cardNumber } = Astro.props;
 import { Image } from "astro:assets";
 import illustration1 from "../assets/illustration-1.avif";
@@ -35,6 +39,7 @@ import illustration4 from "../assets/illustration-4.avif";
     background-color: #f6f6f6;
     border-radius: 4px;
     overflow: hidden;
+    height: 100%;
 
     img {
       width: unset;
@@ -62,16 +67,13 @@ import illustration4 from "../assets/illustration-4.avif";
       flex-direction: row;
 
       img {
-        aspect-ratio: 1;
-        height: 100%;
-        max-width: 200px;
+        aspect-ratio: 16 / 9;
       }
 
       .text {
         h3 {
           font-size: 18px;
           margin-top: auto;
-          width: 200px;
         }
       }
     }
