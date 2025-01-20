@@ -3,25 +3,28 @@ interface Props {
   groupNumber: number;
   cardNumber: number;
 }
-const { groupNumber, cardNumber } = Astro.props;
 import { Image } from "astro:assets";
 import illustration1 from "../assets/illustration-1.avif";
 import illustration2 from "../assets/illustration-2.avif";
 import illustration3 from "../assets/illustration-3.avif";
 import illustration4 from "../assets/illustration-4.avif";
+
+const { groupNumber, cardNumber } = Astro.props;
 ---
 
 <div class="card">
-  <Image
-    src={groupNumber === 1
-      ? illustration1
-      : groupNumber === 2
-        ? illustration2
-        : groupNumber === 3
-          ? illustration3
-          : illustration4}
-    alt="Illustration"
-  />
+  <div class="image-container">
+    <Image
+      src={groupNumber === 1
+        ? illustration1
+        : groupNumber === 2
+          ? illustration2
+          : groupNumber === 3
+            ? illustration3
+            : illustration4}
+      alt="Illustration"
+    />
+  </div>
   <div class="text">
     <h3>Group {groupNumber} | CardBlock {cardNumber}</h3>
     <p>
@@ -41,12 +44,16 @@ import illustration4 from "../assets/illustration-4.avif";
     overflow: hidden;
     height: 100%;
 
-    img {
-      width: unset;
-      height: unset;
-      max-width: 100%;
-      object-fit: cover;
+    .image-container {
       aspect-ratio: 16 / 9;
+      height: 100%;
+
+      img {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        object-fit: cover;
+      }
     }
 
     .text {

@@ -1,11 +1,28 @@
 ---
 export type LayoutType = "12" | "6-6" | "4-4-4" | "3-3-3-3" | "4-8" | "8-4";
+// prettier-ignore
+export type ContentAlignment = "equalHeightRows" | "individualHeightRows" | "individualHeightItems";
 
 interface Props {
   type?: LayoutType;
+  contentAlignment?: ContentAlignment;
+  contentGap?: 0 | 16 | 32;
+  verticalMargins?: boolean;
   id?: string;
 }
 import { parseHTML } from "linkedom";
+
+function contentAlignmentClass(contentAlignment: Props["contentAlignment"]) {
+  return contentAlignment === "equalHeightRows"
+    ? "equal-height-rows"
+    : contentAlignment === "individualHeightRows"
+      ? "individual-height-rows"
+      : "individual-height-items";
+}
+
+function verticalMarginsClass(verticalMargins: Props["verticalMargins"]) {
+  return verticalMargins ? "vertical-margins" : "";
+}
 
 const html = await Astro.slots.render("default");
 const { document } = parseHTML(html);
@@ -13,21 +30,52 @@ const numberOfSlots = document.children.length;
 const atLeastThreeSlots = numberOfSlots >= 3;
 const slotsDivisibleByThree = numberOfSlots % 3 === 0;
 
-const { type = "12", id } = Astro.props;
+const {
+  type = "12",
+  contentAlignment = "equalHeightRows",
+  id,
+  contentGap = 32,
+  verticalMargins = false,
+} = Astro.props;
 ---
 
-<div class={`layout layout-${type}`} id={id}><slot /></div>
+<div
+  class:list={[
+    "layout",
+    `layout-${type}`,
+    contentAlignmentClass(contentAlignment),
+    verticalMarginsClass(verticalMargins),
+  ]}
+  id={id}
+>
+  <slot />
+</div>
 
 <style
   define:vars={{
     atLeastThreeSlots: atLeastThreeSlots ? "initial" : "-1 / 1",
     slotsDivisibleByThree: slotsDivisibleByThree ? "initial" : "-1 / 1",
+    contentGap: contentGap,
+    verticalMargins: verticalMargins,
   }}
 >
   .layout {
     display: grid;
-    column-gap: 32px;
-    row-gap: 32px;
+    column-gap: var(--content-gap);
+    row-gap: var(--content-gap);
+    margin: var(--vertical-margins) 0;
+
+    &.equal-height-rows {
+      grid-auto-rows: minmax(0, 1fr);
+    }
+
+    &.individual-height-rows {
+      grid-template-rows: repeat(auto-fill, minmax(256px, 1fr));
+    }
+
+    &.individual-height-items {
+      align-items: start;
+    }
   }
 
   /* 

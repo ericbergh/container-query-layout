@@ -4,25 +4,67 @@ import Layout from "../components/layout.astro";
 import ContentArea from "../components/content_area.astro";
 import Card from "../components/card.astro";
 import RootLayout from "../layouts/root_layout.astro";
-import type { LayoutType } from "../components/layout.astro";
+import type { LayoutType, ContentAlignment } from "../components/layout.astro";
 
-function validateLayoutUrlParam(layout: string): LayoutType {
-  console.log("layout", layout);
+function validateLayoutUrlParam(layout: string | null): LayoutType {
+  if (!layout) {
+    return "12";
+  }
+
   if (["12", "6-6", "4-4-4", "3-3-3-3", "4-8", "8-4"].includes(layout)) {
     return layout as LayoutType;
   }
+
   return "12";
+}
+
+function validateContentAlignmentUrlParam(
+  contentAlignment: string | null,
+): ContentAlignment {
+  if (!contentAlignment) {
+    return "equalHeightRows";
+  }
+
+  if (
+    [
+      "equalHeightRows",
+      "individualHeightRows",
+      "individualHeightItems",
+    ].includes(contentAlignment)
+  ) {
+    return contentAlignment as ContentAlignment;
+  }
+
+  return "equalHeightRows";
 }
 
 // Get initial state from URL parameters
 const urlParams = new URL(Astro.request.url).searchParams;
-const initialLayout = validateLayoutUrlParam(urlParams.get("layout") || "12");
+const initialLayout = validateLayoutUrlParam(urlParams.get("layout"));
+const initialContentAlignment = validateContentAlignmentUrlParam(
+  urlParams.get("contentAlignment"),
+);
+const initialContentGap = Number(urlParams.get("contentGap") || "32") as
+  | 0
+  | 16
+  | 32;
+const initialVerticalMargins = urlParams.get("verticalMargins") === "true";
 
-// Parse items array from URL, default to 4 cards if not present
+// Update the parsing function
+function parseLayoutItems(itemsParam: string | null): any {
+  if (!itemsParam) {
+    return Array(4).fill({ type: "card" });
+  }
+  try {
+    return JSON.parse(decodeURIComponent(itemsParam));
+  } catch {
+    return Array(4).fill({ type: "card" });
+  }
+}
+
+// Update where we get the initial items
 const itemsParam = urlParams.get("items");
-const initialItems: ("card" | "layout")[] = itemsParam
-  ? JSON.parse(decodeURIComponent(itemsParam))
-  : Array(4).fill("card");
+const initialItems = parseLayoutItems(itemsParam);
 ---
 
 <RootLayout title="Grid Layout Demo">
@@ -49,7 +91,7 @@ const initialItems: ("card" | "layout")[] = itemsParam
               <p>
                 The amount of columns in the layout block. This holds true as
                 long as the individual columns doesn't get below 256px, after
-                that to the closest most columns.
+                which it will be reduced to the closest most columns.
               </p>
               <div class="layout-buttons">
                 <button
@@ -89,8 +131,56 @@ const initialItems: ("card" | "layout")[] = itemsParam
                   8-4 - two columns, big/small
                 </button>
               </div>
+              <div class="content-alignment-controls">
+                <h3>Content alignment</h3>
+                <select id="content-alignment-select">
+                  <option
+                    value="equalHeightRows"
+                    selected={initialContentAlignment === "equalHeightRows"}
+                  >
+                    Equal Height Rows
+                  </option>
+                  <option
+                    value="individualHeightRows"
+                    selected={initialContentAlignment ===
+                      "individualHeightRows"}
+                  >
+                    Individual Height Rows
+                  </option>
+                  <option
+                    value="individualHeightItems"
+                    selected={initialContentAlignment ===
+                      "individualHeightItems"}
+                  >
+                    Individual Height Items
+                  </option>
+                </select>
+              </div>
+              <div class="gap-controls">
+                <h3>Content gap</h3>
+                <select id="content-gap-select">
+                  <option value="0" selected={initialContentGap === 0}>
+                    No gap (0px)
+                  </option>
+                  <option value="16" selected={initialContentGap === 16}>
+                    Small gap (16px)
+                  </option>
+                  <option value="32" selected={initialContentGap === 32}>
+                    Large gap (32px)
+                  </option>
+                </select>
+              </div>
+              <div class="margin-controls">
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    id="vertical-margins-toggle"
+                    checked={initialVerticalMargins}
+                  />
+                  Vertical margins
+                </label>
+              </div>
               <div class="width-controls">
-                <h3>Width</h3>
                 <label class="checkbox-label">
                   <input
                     type="checkbox"
@@ -105,16 +195,81 @@ const initialItems: ("card" | "layout")[] = itemsParam
                 <div class="content-preview">
                   <div class="preview-grid" id="content-preview">
                     {
-                      initialItems.map((itemType, index) => (
+                      initialItems.map((item: any, index: number) => (
                         <div
                           class="preview-item"
                           data-index={index}
-                          data-type={itemType}
+                          data-type={item.type}
                         >
                           <span>
-                            {itemType === "card"
-                              ? "CardBlock"
-                              : "LayoutBlock with 2 cards"}
+                            {item.type === "card" ? (
+                              "CardBlock"
+                            ) : (
+                              <div class="nested-layout">
+                                <span>
+                                  LayoutBlock ({item.layout?.type || "12"})
+                                </span>
+                                <div class="nested-items">
+                                  {item.layout?.items.map(
+                                    (subItem: any, subIndex: number) => (
+                                      <div class="nested-preview-item">
+                                        {subItem.type === "card"
+                                          ? "CardBlock"
+                                          : "LayoutBlock"}
+                                        <button
+                                          class="remove-nested-item"
+                                          data-parent-index={index}
+                                          data-index={subIndex}
+                                          title="Remove this item"
+                                        >
+                                          ×
+                                        </button>
+                                      </div>
+                                    ),
+                                  )}
+                                  <div class="nested-controls">
+                                    <button
+                                      class="add-nested-item"
+                                      data-parent-index={index}
+                                      data-type="card"
+                                    >
+                                      + Add Card
+                                    </button>
+                                  </div>
+                                </div>
+                                <div class="layout-type-select">
+                                  <select
+                                    class="nested-layout-type"
+                                    data-index={index}
+                                  >
+                                    <option
+                                      value="12"
+                                      selected={item.layout?.type === "12"}
+                                    >
+                                      One column
+                                    </option>
+                                    <option
+                                      value="6-6"
+                                      selected={item.layout?.type === "6-6"}
+                                    >
+                                      Two columns
+                                    </option>
+                                    <option
+                                      value="4-4-4"
+                                      selected={item.layout?.type === "4-4-4"}
+                                    >
+                                      Three columns
+                                    </option>
+                                    <option
+                                      value="3-3-3-3"
+                                      selected={item.layout?.type === "3-3-3-3"}
+                                    >
+                                      Four columns
+                                    </option>
+                                  </select>
+                                </div>
+                              </div>
+                            )}
                           </span>
                           <button class="remove-item" title="Remove this item">
                             ×
@@ -150,17 +305,27 @@ const initialItems: ("card" | "layout")[] = itemsParam
     id="demo-layout-container"
     fullWidth={urlParams.get("fullWidth") === "true"}
   >
-    <Layout type={initialLayout}>
+    <Layout
+      type={initialLayout}
+      contentAlignment={initialContentAlignment}
+      contentGap={initialContentGap}
+      verticalMargins={initialVerticalMargins}
+    >
       {
-        initialItems.map((itemType, index) => (
+        initialItems.map((item: any, index: number) => (
           <ContentArea>
-            {itemType === "card" ? (
-              <Card groupNumber={1} cardNumber={index + 1} />
+            {item.type === "card" ? (
+              <Card groupNumber={index + 1} cardNumber={index + 1} />
             ) : (
-              <Layout type="12">
-                {Array.from({ length: 2 }).map((_, subIndex) => (
+              <Layout type={item.layout?.type || "12"}>
+                {item.layout?.items.map((subItem: any, subIndex: number) => (
                   <ContentArea>
-                    <Card groupNumber={2} cardNumber={subIndex + 1} />
+                    {subItem.type === "card" ? (
+                      <Card groupNumber={index + 1} cardNumber={subIndex + 1} />
+                    ) : (
+                      // Handle nested layouts here if needed
+                      <Card groupNumber={index + 1} cardNumber={subIndex + 1} />
+                    )}
                   </ContentArea>
                 ))}
               </Layout>
@@ -323,27 +488,151 @@ const initialItems: ("card" | "layout")[] = itemsParam
     width: 16px;
     height: 16px;
   }
+
+  .nested-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .nested-items {
+    margin-left: 16px;
+    padding: 8px;
+    border-left: 2px solid #eee;
+  }
+
+  .nested-preview-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    margin-bottom: 4px;
+  }
+
+  .layout-type-select {
+    margin-top: 8px;
+  }
+
+  .nested-layout-type {
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+  }
+
+  .nested-controls {
+    margin-top: 8px;
+  }
+
+  .add-nested-item {
+    padding: 4px 8px;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+    cursor: pointer;
+  }
+
+  .remove-nested-item {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 2px 6px;
+  }
+
+  .remove-nested-item:hover {
+    color: #ff4444;
+  }
+
+  .content-alignment-controls {
+    margin-top: 2rem;
+  }
+
+  .content-alignment-controls select {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    min-width: 200px;
+  }
+
+  .gap-controls,
+  .margin-controls {
+    margin-top: 2rem;
+  }
+
+  .gap-controls select {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    min-width: 200px;
+  }
 </style>
 
 <script>
-  function updateURL(
-    layout: string,
-    items: ("card" | "layout")[],
-    fullWidth?: boolean,
-  ) {
+  function updateURL(layout: string, items: any, fullWidth?: boolean) {
     const url = new URL(window.location.href);
     url.searchParams.set("layout", layout);
     url.searchParams.set("items", encodeURIComponent(JSON.stringify(items)));
+
+    // Get current content alignment
+    const contentAlignment = (
+      document.getElementById("content-alignment-select") as HTMLSelectElement
+    )?.value;
+    if (contentAlignment) {
+      url.searchParams.set("contentAlignment", contentAlignment);
+    }
+
+    // Get content gap
+    const contentGap = (
+      document.getElementById("content-gap-select") as HTMLSelectElement
+    )?.value;
+    if (contentGap) {
+      url.searchParams.set("contentGap", contentGap);
+    }
+
+    // Get vertical margins
+    const verticalMargins = (
+      document.getElementById("vertical-margins-toggle") as HTMLInputElement
+    )?.checked;
+    url.searchParams.set("verticalMargins", verticalMargins.toString());
+
     if (fullWidth !== undefined) {
       url.searchParams.set("fullWidth", fullWidth.toString());
     }
     window.location.href = url.toString();
   }
 
-  function getCurrentItems(): ("card" | "layout")[] {
-    const items: ("card" | "layout")[] = [];
+  function getCurrentItems(): any {
+    const items: any = [];
     document.querySelectorAll(".preview-item").forEach((item) => {
-      items.push(item.getAttribute("data-type") as "card" | "layout");
+      const type = item.getAttribute("data-type") as "card" | "layout";
+      if (type === "card") {
+        items.push({ type: "card" });
+      } else {
+        const layoutType = (
+          item.querySelector(".nested-layout-type") as HTMLSelectElement
+        )?.value;
+        const nestedItems: any = [];
+        item.querySelectorAll(".nested-preview-item").forEach(() => {
+          nestedItems.push({ type: "card" });
+        });
+        items.push({
+          type: "layout",
+          layout: {
+            type: layoutType || "12",
+            items: nestedItems,
+          },
+        });
+      }
     });
     return items;
   }
@@ -370,7 +659,7 @@ const initialItems: ("card" | "layout")[] = itemsParam
         const currentLayout =
           new URLSearchParams(window.location.search).get("layout") || "12";
         const items = getCurrentItems().filter(
-          (_, index) =>
+          (_: any, index: number) =>
             index !==
             parseInt(
               target.closest(".preview-item")?.getAttribute("data-index") ||
@@ -389,7 +678,18 @@ const initialItems: ("card" | "layout")[] = itemsParam
           const currentLayout =
             new URLSearchParams(window.location.search).get("layout") || "12";
           const items = getCurrentItems();
-          items.push(button.getAttribute("data-type") as "card" | "layout");
+          const type = button.getAttribute("data-type") as "card" | "layout";
+          items.push(
+            type === "card"
+              ? { type: "card" }
+              : {
+                  type: "layout",
+                  layout: {
+                    type: "12", // Default to single column
+                    items: Array(2).fill({ type: "card" }),
+                  },
+                },
+          );
           updateURL(currentLayout, items);
         }
       });
@@ -409,10 +709,101 @@ const initialItems: ("card" | "layout")[] = itemsParam
     });
   }
 
+  function initializeContentAlignmentControls() {
+    const contentAlignmentSelect = document.getElementById(
+      "content-alignment-select",
+    );
+    contentAlignmentSelect?.addEventListener("change", () => {
+      const currentLayout =
+        new URLSearchParams(window.location.search).get("layout") || "12";
+      const items = getCurrentItems();
+      const fullWidth = (
+        document.getElementById("full-width-toggle") as HTMLInputElement
+      )?.checked;
+      updateURL(currentLayout, items, fullWidth);
+    });
+  }
+
+  function initializeGapControls() {
+    const gapSelect = document.getElementById("content-gap-select");
+    gapSelect?.addEventListener("change", () => {
+      const currentLayout =
+        new URLSearchParams(window.location.search).get("layout") || "12";
+      const items = getCurrentItems();
+      const fullWidth = (
+        document.getElementById("full-width-toggle") as HTMLInputElement
+      )?.checked;
+      updateURL(currentLayout, items, fullWidth);
+    });
+  }
+
+  function initializeMarginControls() {
+    const marginToggle = document.getElementById("vertical-margins-toggle");
+    marginToggle?.addEventListener("change", () => {
+      const currentLayout =
+        new URLSearchParams(window.location.search).get("layout") || "12";
+      const items = getCurrentItems();
+      const fullWidth = (
+        document.getElementById("full-width-toggle") as HTMLInputElement
+      )?.checked;
+      updateURL(currentLayout, items, fullWidth);
+    });
+  }
+
+  function initializeNestedControls() {
+    document.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+
+      // Handle removing nested items
+      if (target.classList.contains("remove-nested-item")) {
+        const parentIndex = parseInt(
+          target.getAttribute("data-parent-index") || "0",
+        );
+        const index = parseInt(target.getAttribute("data-index") || "0");
+        const items = getCurrentItems();
+        if (items[parentIndex]?.layout?.items) {
+          items[parentIndex].layout!.items.splice(index, 1);
+          const currentLayout =
+            new URLSearchParams(window.location.search).get("layout") || "12";
+          updateURL(currentLayout, items);
+        }
+      }
+
+      // Handle adding nested items
+      if (target.classList.contains("add-nested-item")) {
+        const parentIndex = parseInt(
+          target.getAttribute("data-parent-index") || "0",
+        );
+        const items = getCurrentItems();
+        if (items[parentIndex]?.layout?.items) {
+          items[parentIndex].layout!.items.push({ type: "card" });
+          const currentLayout =
+            new URLSearchParams(window.location.search).get("layout") || "12";
+          updateURL(currentLayout, items);
+        }
+      }
+    });
+
+    // Handle layout type changes
+    document.addEventListener("change", (e) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains("nested-layout-type")) {
+        const items = getCurrentItems();
+        const currentLayout =
+          new URLSearchParams(window.location.search).get("layout") || "12";
+        updateURL(currentLayout, items);
+      }
+    });
+  }
+
   // Initialize all controls when the DOM is loaded
   document.addEventListener("DOMContentLoaded", () => {
     initializeGridControls();
     initializeContentControls();
     initializeWidthControls();
+    initializeNestedControls();
+    initializeContentAlignmentControls();
+    initializeGapControls();
+    initializeMarginControls();
   });
 </script>
