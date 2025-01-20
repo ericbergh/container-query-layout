@@ -1,0 +1,23 @@
+---
+interface Props {
+  fullWidth?: boolean;
+  id?: string;
+}
+
+const { fullWidth = false, id } = Astro.props;
+---
+
+<div class:list={["layout-container", fullWidth && "full-width"]} id={id}>
+  <slot />
+</div>
+
+<style>
+  .layout-container {
+    container: layout-container / inline-size;
+    grid-column: 2;
+
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

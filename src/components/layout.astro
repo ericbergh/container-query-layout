@@ -1,15 +1,30 @@
 ---
+export type LayoutType = "12" | "6-6" | "4-4-4" | "3-3-3-3" | "4-8" | "8-4";
+
 interface Props {
-  layout?: "12" | "6-6" | "4-4-4" | "3-3-3-3" | "4-8" | "8-4";
+  type?: LayoutType;
   id?: string;
 }
-const { layout = "12", id } = Astro.props;
+import { parseHTML } from "linkedom";
+
+const html = await Astro.slots.render("default");
+const { document } = parseHTML(html);
+const numberOfSlots = document.children.length;
+const atLeastThreeSlots = numberOfSlots >= 3;
+const slotsDivisibleByThree = numberOfSlots % 3 === 0;
+
+const { type = "12", id } = Astro.props;
 ---
 
-<div class={`grid layout-${layout}`} id={id}><slot /></div>
+<div class={`layout layout-${type}`} id={id}><slot /></div>
 
-<style>
-  .grid {
+<style
+  define:vars={{
+    atLeastThreeSlots: atLeastThreeSlots ? "initial" : "-1 / 1",
+    slotsDivisibleByThree: slotsDivisibleByThree ? "initial" : "-1 / 1",
+  }}
+>
+  .layout {
     display: grid;
     column-gap: 32px;
     row-gap: 32px;
@@ -22,8 +37,8 @@ const { layout = "12", id } = Astro.props;
   The gap takes up 32px x 1 = 32px
   512px + 32px = 544px
   */
-  @container grid-container (min-width: 544px) {
-    .grid {
+  @container layout-container (min-width: 544px) {
+    .layout {
       &.layout-6-6,
       &.layout-4-4-4,
       &.layout-3-3-3-3,
@@ -46,16 +61,16 @@ const { layout = "12", id } = Astro.props;
       }
 
       &.layout-4-4-4 {
-        .grid-container:nth-child(n + 3),
+        .layout-container:nth-child(n + 3),
         .content-area:nth-child(n + 3) {
-          grid-column: -1 / 1;
+          grid-column: var(--atLeastThreeSlots);
         }
       }
     }
   }
 
-  @container grid-container (min-width: 800px) {
-    .grid {
+  @container layout-container (min-width: 800px) {
+    .layout {
       &.layout-4-8 {
         grid-template-columns: 4fr 8fr;
       }
@@ -73,14 +88,14 @@ const { layout = "12", id } = Astro.props;
   The gap takes up 32px x 2 = 64px
   768px + 64px = 832px
   */
-  @container grid-container (min-width: 832px) {
-    .grid {
+  @container layout-container (min-width: 832px) {
+    .layout {
       &.layout-4-4-4 {
         grid-template-columns: repeat(3, 1fr);
 
-        .grid-container:nth-child(n + 3),
-        .content-area:nth-child(n + 3) {
-          grid-column: unset;
+        .layout-container:nth-child(n + 6),
+        .content-area:nth-child(n + 6) {
+          grid-column: var(--slotsDivisibleByThree);
         }
       }
     }
@@ -93,8 +108,8 @@ const { layout = "12", id } = Astro.props;
   The gap takes up 32px x 3 = 96px
   1024px + 96px = 1120px
   */
-  @container grid-container (min-width: 1120px) {
-    .grid {
+  @container layout-container (min-width: 1120px) {
+    .layout {
       &.layout-3-3-3-3 {
         grid-template-columns: repeat(4, 1fr);
       }

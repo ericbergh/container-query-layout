@@ -1,13 +1,35 @@
 ---
-import GridContainer from "../components/grid_container.astro";
-import Grid from "../components/grid.astro";
+import LayoutContainer from "../components/layout_container.astro";
+import Layout from "../components/layout.astro";
 import ContentArea from "../components/content_area.astro";
 import Card from "../components/card.astro";
-import Layout from "../layouts/layout.astro";
+import RootLayout from "../layouts/root_layout.astro";
+import type { LayoutType } from "../components/layout.astro";
+
+function validateLayoutUrlParam(layout: string): LayoutType {
+  console.log("layout", layout);
+  if (["12", "6-6", "4-4-4", "3-3-3-3", "4-8", "8-4"].includes(layout)) {
+    return layout as LayoutType;
+  }
+  return "12";
+}
+
+// Get initial state from URL parameters
+const urlParams = new URL(Astro.request.url).searchParams;
+const initialLayout = validateLayoutUrlParam(urlParams.get("layout") || "12");
+
+// Parse items array from URL, default to 4 cards if not present
+const itemsParam = urlParams.get("items");
+const initialItems: ("card" | "layout")[] = itemsParam
+  ? JSON.parse(decodeURIComponent(itemsParam))
+  : Array(4).fill("card");
 ---
 
-<Layout title="Grid Layout Demo">
-  <div class="description">
+<RootLayout title="Grid Layout Demo">
+  <LayoutContainer>
+    <Layout type="12">
+      <ContentArea>
+        <!-- <div class="description">
     <h2>The One Grid</h2>
     <ul>
       <li>This grid can either have content or grids as immediate children.</li>
@@ -18,148 +40,137 @@ import Layout from "../layouts/layout.astro";
         as it does columns.
       </li>
     </ul>
-  </div>
-  <div class="grid-showcase">
-    <section>
-      <h2>4 column grid with 4 nested grids of 4 cards</h2>
-      <GridContainer>
-        <Grid layout="3-3-3-3">
-          {
-            Array.from({ length: 4 }).map((_, groupIndex) => (
-              <GridContainer key={groupIndex}>
-                <Grid layout="12">
-                  {Array.from({ length: 4 }).map((_, index) => (
-                    <ContentArea key={index}>
-                      <Card
-                        groupNumber={groupIndex + 1}
-                        cardNumber={index + 1}
-                      />
-                    </ContentArea>
-                  ))}
-                </Grid>
-              </GridContainer>
-            ))
-          }
-        </Grid>
-      </GridContainer>
-    </section>
-    <section>
-      <h2>3 column grid with 3 nested grids of 3 cards</h2>
-      <GridContainer>
-        <Grid layout="4-4-4">
-          {
-            Array.from({ length: 3 }).map((_, groupIndex) => (
-              <GridContainer key={groupIndex}>
-                <Grid layout="4-4-4">
-                  {Array.from({ length: 3 }).map((_, index) => (
-                    <ContentArea key={index}>
-                      <Card
-                        groupNumber={groupIndex + 1}
-                        cardNumber={index + 1}
-                      />
-                    </ContentArea>
-                  ))}
-                </Grid>
-              </GridContainer>
-            ))
-          }
-        </Grid>
-      </GridContainer>
-    </section>
-    <section>
-      <h2>3 column grid with 3 cards</h2>
-      <GridContainer>
-        <Grid layout="4-4-4">
-          {
-            Array.from({ length: 3 }).map((_, index) => (
-              <ContentArea key={index}>
-                <Card groupNumber={1} cardNumber={index + 1} />
-              </ContentArea>
-            ))
-          }
-        </Grid>
-      </GridContainer>
-    </section>
-    <section>
-      <h2>2 column 4/8 grid with 2 cards</h2>
-      <GridContainer>
-        <Grid layout="4-8">
-          {
-            Array.from({ length: 2 }).map((_, index) => (
-              <ContentArea key={index}>
-                <Card groupNumber={1} cardNumber={index + 1} />
-              </ContentArea>
-            ))
-          }
-        </Grid>
-      </GridContainer>
-    </section>
-    <section>
-      <h2>2 column 8/4 grid with 2 cards</h2>
-      <GridContainer>
-        <Grid layout="8-4">
-          {
-            Array.from({ length: 2 }).map((_, index) => (
-              <ContentArea key={index}>
-                <Card groupNumber={1} cardNumber={index + 1} />
-              </ContentArea>
-            ))
-          }
-        </Grid>
-      </GridContainer>
-    </section>
-    <section>
-      <h2>2 column 8/4 grid with 2 nested 1 column grids of 2 cards</h2>
-      <GridContainer>
-        <Grid layout="8-4">
-          <Grid layout="12">
-            {
-              Array.from({ length: 2 }).map((_, index) => (
-                <ContentArea key={index}>
-                  <Card groupNumber={1} cardNumber={index + 1} />
-                </ContentArea>
-              ))
-            }
-          </Grid>
-          <Grid layout="12">
-            {
-              Array.from({ length: 2 }).map((_, index) => (
-                <ContentArea key={index}>
-                  <Card groupNumber={1} cardNumber={index + 1} />
-                </ContentArea>
-              ))
-            }
-          </Grid>
-        </Grid>
-      </GridContainer>
-    </section>
-  </div>
-  <section class="grid-demo">
-    <GridContainer>
-      <div class="controls">
-        <h2>Grid Layout Controls</h2>
-        <div class="layout-buttons">
-          <button data-layout="12" class="active">12 - one column</button>
-          <button data-layout="6-6">6-6 - two columns</button>
-          <button data-layout="4-4-4">4-4-4 - three columns</button>
-          <button data-layout="3-3-3-3">3-3-3-3 - four columns</button>
-          <button data-layout="4-8">4-8 - two columns, small/big</button>
-          <button data-layout="8-4">8-4 - two columns, big/small</button>
+  </div> -->
+        <div class="grid-showcase">
+          <section class="grid-demo">
+            <h2>Layout block</h2>
+            <div class="controls">
+              <h3>Type</h3>
+              <p>
+                The amount of columns in the layout block. This holds true as
+                long as the individual columns doesn't get below 256px, after
+                that to the closest most columns.
+              </p>
+              <div class="layout-buttons">
+                <button
+                  data-type="12"
+                  class={initialLayout === "12" ? "active" : ""}
+                >
+                  12 - one column
+                </button>
+                <button
+                  data-type="6-6"
+                  class={initialLayout === "6-6" ? "active" : ""}
+                >
+                  6-6 - two columns
+                </button>
+                <button
+                  data-type="4-4-4"
+                  class={initialLayout === "4-4-4" ? "active" : ""}
+                >
+                  4-4-4 - three columns
+                </button>
+                <button
+                  data-type="3-3-3-3"
+                  class={initialLayout === "3-3-3-3" ? "active" : ""}
+                >
+                  3-3-3-3 - four columns
+                </button>
+                <button
+                  data-type="4-8"
+                  class={initialLayout === "4-8" ? "active" : ""}
+                >
+                  4-8 - two columns, small/big
+                </button>
+                <button
+                  data-type="8-4"
+                  class={initialLayout === "8-4" ? "active" : ""}
+                >
+                  8-4 - two columns, big/small
+                </button>
+              </div>
+              <div class="width-controls">
+                <h3>Width</h3>
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    id="full-width-toggle"
+                    checked={urlParams.get("fullWidth") === "true"}
+                  />
+                  Full width
+                </label>
+              </div>
+              <div class="content-controls">
+                <h3>Content area</h3>
+                <div class="content-preview">
+                  <div class="preview-grid" id="content-preview">
+                    {
+                      initialItems.map((itemType, index) => (
+                        <div
+                          class="preview-item"
+                          data-index={index}
+                          data-type={itemType}
+                        >
+                          <span>
+                            {itemType === "card"
+                              ? "CardBlock"
+                              : "LayoutBlock with 2 cards"}
+                          </span>
+                          <button class="remove-item" title="Remove this item">
+                            ×
+                          </button>
+                        </div>
+                      ))
+                    }
+                    <div class="add-controls">
+                      <button class="add-item" data-type="card"
+                        >+ Add CardBlock</button
+                      >
+                      <button class="add-item" data-type="grid"
+                        >+ Add LayoutBlock</button
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
-      </div>
-
-      <Grid layout="12" id="demo-grid">
-        {
-          Array.from({ length: 4 }).map((_, index) => (
-            <ContentArea key={index}>
+      </ContentArea>
+    </Layout>
+  </LayoutContainer>
+  <LayoutContainer>
+    <Layout type="12">
+      <ContentArea>
+        <h3>Preview</h3>
+      </ContentArea>
+    </Layout>
+  </LayoutContainer>
+  <LayoutContainer
+    id="demo-layout-container"
+    fullWidth={urlParams.get("fullWidth") === "true"}
+  >
+    <Layout type={initialLayout}>
+      {
+        initialItems.map((itemType, index) => (
+          <ContentArea>
+            {itemType === "card" ? (
               <Card groupNumber={1} cardNumber={index + 1} />
-            </ContentArea>
-          ))
-        }
-      </Grid>
-    </GridContainer>
-  </section>
-</Layout>
+            ) : (
+              <Layout type="12">
+                {Array.from({ length: 2 }).map((_, subIndex) => (
+                  <ContentArea>
+                    <Card groupNumber={2} cardNumber={subIndex + 1} />
+                  </ContentArea>
+                ))}
+              </Layout>
+            )}
+          </ContentArea>
+        ))
+      }
+    </Layout>
+  </LayoutContainer>
+</RootLayout>
 
 <style>
   .grid-showcase {
@@ -177,6 +188,15 @@ import Layout from "../layouts/layout.astro";
 
   .controls {
     margin-bottom: 2rem;
+
+    h3 {
+      margin: 0 0 0.5rem 0;
+    }
+
+    p {
+      margin: 0 0 1rem 0;
+      max-width: 64ch;
+    }
   }
 
   .layout-buttons {
@@ -211,33 +231,188 @@ import Layout from "../layouts/layout.astro";
     justify-content: center;
     font-size: 1.25rem;
   }
+
+  .content-controls {
+    margin-top: 2rem;
+  }
+
+  .content-preview {
+    margin-top: 1rem;
+  }
+
+  .preview-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid hsl(0, 0%, 84%);
+    border-radius: 4px;
+    line-height: 1.2;
+    min-height: 24px;
+    padding: 16px;
+  }
+
+  .preview-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #fff;
+    border: 1px solid #b1bac0;
+    border-radius: 4px;
+    padding: 12px 16px;
+  }
+
+  .remove-item {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    color: #666;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    line-height: 1;
+  }
+
+  .remove-item:hover {
+    color: #ff4444;
+  }
+
+  .item-type-select {
+    margin-left: auto;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+  }
+
+  .add-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .add-item {
+    padding: 0.5rem 1rem;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .add-item:hover {
+    background: #357abd;
+  }
+
+  .width-controls {
+    margin-top: 2rem;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+
+  .checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+  }
 </style>
 
 <script>
+  function updateURL(
+    layout: string,
+    items: ("card" | "layout")[],
+    fullWidth?: boolean,
+  ) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("layout", layout);
+    url.searchParams.set("items", encodeURIComponent(JSON.stringify(items)));
+    if (fullWidth !== undefined) {
+      url.searchParams.set("fullWidth", fullWidth.toString());
+    }
+    window.location.href = url.toString();
+  }
+
+  function getCurrentItems(): ("card" | "layout")[] {
+    const items: ("card" | "layout")[] = [];
+    document.querySelectorAll(".preview-item").forEach((item) => {
+      items.push(item.getAttribute("data-type") as "card" | "layout");
+    });
+    return items;
+  }
+
   function initializeGridControls() {
     const buttons = document.querySelectorAll(".layout-buttons button");
-    const grid = document.getElementById("demo-grid");
 
     buttons.forEach((button) => {
       button.addEventListener("click", () => {
-        // Remove active class from all buttons
-        buttons.forEach((btn) => btn.classList.remove("active"));
-
-        // Add active class to clicked button
-        button.classList.add("active");
-
-        // Update grid layout
-        const newLayout = button.getAttribute("data-layout");
-        grid?.classList.forEach((className) => {
-          if (className.startsWith("layout-")) {
-            grid.classList.remove(className);
-          }
-        });
-        grid?.classList.add(`layout-${newLayout}`);
+        const newLayout = button.getAttribute("data-type") || "12";
+        const items = getCurrentItems();
+        updateURL(newLayout, items);
       });
     });
   }
 
-  // Initialize controls when the DOM is loaded
-  document.addEventListener("DOMContentLoaded", initializeGridControls);
+  function initializeContentControls() {
+    const preview = document.getElementById("content-preview");
+
+    // Handle remove buttons
+    preview?.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains("remove-item")) {
+        const currentLayout =
+          new URLSearchParams(window.location.search).get("layout") || "12";
+        const items = getCurrentItems().filter(
+          (_, index) =>
+            index !==
+            parseInt(
+              target.closest(".preview-item")?.getAttribute("data-index") ||
+                "-1",
+            ),
+        );
+        updateURL(currentLayout, items);
+      }
+    });
+
+    // Add new items
+    document.querySelectorAll(".add-item").forEach((button) => {
+      button.addEventListener("click", () => {
+        const currentCount = preview?.children.length ?? 0;
+        if (currentCount < 12) {
+          const currentLayout =
+            new URLSearchParams(window.location.search).get("layout") || "12";
+          const items = getCurrentItems();
+          items.push(button.getAttribute("data-type") as "card" | "layout");
+          updateURL(currentLayout, items);
+        }
+      });
+    });
+  }
+
+  function initializeWidthControls() {
+    const fullWidthToggle = document.getElementById(
+      "full-width-toggle",
+    ) as HTMLInputElement;
+
+    fullWidthToggle?.addEventListener("change", () => {
+      const currentLayout =
+        new URLSearchParams(window.location.search).get("layout") || "12";
+      const items = getCurrentItems();
+      updateURL(currentLayout, items, fullWidthToggle.checked);
+    });
+  }
+
+  // Initialize all controls when the DOM is loaded
+  document.addEventListener("DOMContentLoaded", () => {
+    initializeGridControls();
+    initializeContentControls();
+    initializeWidthControls();
+  });
 </script>
