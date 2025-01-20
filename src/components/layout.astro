@@ -95,14 +95,6 @@ const {
         grid-template-columns: repeat(2, 1fr);
       }
 
-      /* 
-      800px wide container for 4-8/8-4 layouts
-      ---
-      4fr column (1/3) minimum width = 256px
-      8fr column (2/3) = 512px
-      Gap = 32px
-      Total = 800px
-      */
       &.layout-4-8,
       &.layout-8-4 {
         grid-template-columns: 1fr;
@@ -117,6 +109,14 @@ const {
     }
   }
 
+  /* 
+  800px wide container = 4-8/8-4 layouts viable
+  ---
+  4fr column (1/3) minimum width = 256px
+  8fr column (2/3) = 512px
+  Gap = 32px
+  Total = 800px
+  */
   @container layout-container (min-width: 800px) {
     .layout {
       &.layout-4-8 {
@@ -130,7 +130,7 @@ const {
   }
 
   /* 
-  832px wide container = 3 columns
+  832px wide container = 3 columns viable
   ---
   Minimum content area of 256px x 3 = 768px
   The gap takes up 32px x 2 = 64px
@@ -150,7 +150,7 @@ const {
   }
 
   /* 
-  1120px wide container = 4 columns
+  1120px wide container = 4 columns viable
   ---
   Minimum content area of 256px x 4 = 1024px
   The gap takes up 32px x 3 = 96px
