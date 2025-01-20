@@ -56,7 +56,22 @@ function parseLayoutItems(itemsParam: string | null): any {
     return Array(4).fill({ type: "card" });
   }
   try {
-    return JSON.parse(decodeURIComponent(itemsParam));
+    const items = JSON.parse(decodeURIComponent(itemsParam));
+    // Add default layout properties if they don't exist
+    return items.map((item: any) => {
+      if (item.type === "layout") {
+        return {
+          ...item,
+          layout: {
+            ...item.layout,
+            contentAlignment: item.layout.contentAlignment || "equalHeightRows",
+            contentGap: item.layout.contentGap || 32,
+            verticalMargins: item.layout.verticalMargins || false,
+          },
+        };
+      }
+      return item;
+    });
   } catch {
     return Array(4).fill({ type: "card" });
   }
@@ -193,13 +208,118 @@ const initialItems = parseLayoutItems(itemsParam);
                               "CardBlock"
                             ) : (
                               <div class="nested-layout">
-                                <span>
-                                  LayoutBlock ({item.layout?.type || "12"})
-                                </span>
-                                <div class="nested-items">
+                                <span>LayoutBlock</span>
+                                <div class="nested-layout-controls">
+                                  <div class="nested-layout-type-select">
+                                    <select
+                                      class="nested-layout-type"
+                                      data-index={index}
+                                    >
+                                      <option
+                                        value="12"
+                                        selected={item.layout?.type === "12"}
+                                      >
+                                        12 - one column
+                                      </option>
+                                      <option
+                                        value="6-6"
+                                        selected={item.layout?.type === "6-6"}
+                                      >
+                                        6-6 - two columns
+                                      </option>
+                                      <option
+                                        value="4-4-4"
+                                        selected={item.layout?.type === "4-4-4"}
+                                      >
+                                        4-4-4 - three columns
+                                      </option>
+                                      <option
+                                        value="3-3-3-3"
+                                        selected={
+                                          item.layout?.type === "3-3-3-3"
+                                        }
+                                      >
+                                        3-3-3-3 - four columns
+                                      </option>
+                                    </select>
+                                  </div>
+                                  <div class="nested-content-alignment">
+                                    <select
+                                      class="nested-content-alignment-select"
+                                      data-index={index}
+                                    >
+                                      <option
+                                        value="equalHeightRows"
+                                        selected={
+                                          item.layout?.contentAlignment ===
+                                          "equalHeightRows"
+                                        }
+                                      >
+                                        Equal Height Rows
+                                      </option>
+                                      <option
+                                        value="individualHeightRows"
+                                        selected={
+                                          item.layout?.contentAlignment ===
+                                          "individualHeightRows"
+                                        }
+                                      >
+                                        Individual Height Rows
+                                      </option>
+                                      <option
+                                        value="individualHeightItems"
+                                        selected={
+                                          item.layout?.contentAlignment ===
+                                          "individualHeightItems"
+                                        }
+                                      >
+                                        Individual Height Items
+                                      </option>
+                                    </select>
+                                  </div>
+                                  <div class="nested-gap-controls">
+                                    <select
+                                      class="nested-content-gap-select"
+                                      data-index={index}
+                                    >
+                                      <option
+                                        value="0"
+                                        selected={item.layout?.contentGap === 0}
+                                      >
+                                        No gap (0px)
+                                      </option>
+                                      <option
+                                        value="16"
+                                        selected={
+                                          item.layout?.contentGap === 16
+                                        }
+                                      >
+                                        Small gap (16px)
+                                      </option>
+                                      <option
+                                        value="32"
+                                        selected={
+                                          item.layout?.contentGap === 32
+                                        }
+                                      >
+                                        Large gap (32px)
+                                      </option>
+                                    </select>
+                                  </div>
+                                  <label class="checkbox-label">
+                                    <input
+                                      type="checkbox"
+                                      class="nested-vertical-margins-toggle"
+                                      data-index={index}
+                                      checked={item.layout?.verticalMargins}
+                                    />
+                                    Vertical margins
+                                  </label>
+                                </div>
+                                <div class="preview-grid">
                                   {item.layout?.items.map(
                                     (subItem: any, subIndex: number) => (
-                                      <div class="nested-preview-item">
+                                      <div class="preview-item">
                                         {subItem.type === "card"
                                           ? "CardBlock"
                                           : "LayoutBlock"}
@@ -223,37 +343,6 @@ const initialItems = parseLayoutItems(itemsParam);
                                       + Add Card
                                     </button>
                                   </div>
-                                </div>
-                                <div class="layout-type-select">
-                                  <select
-                                    class="nested-layout-type"
-                                    data-index={index}
-                                  >
-                                    <option
-                                      value="12"
-                                      selected={item.layout?.type === "12"}
-                                    >
-                                      One column
-                                    </option>
-                                    <option
-                                      value="6-6"
-                                      selected={item.layout?.type === "6-6"}
-                                    >
-                                      Two columns
-                                    </option>
-                                    <option
-                                      value="4-4-4"
-                                      selected={item.layout?.type === "4-4-4"}
-                                    >
-                                      Three columns
-                                    </option>
-                                    <option
-                                      value="3-3-3-3"
-                                      selected={item.layout?.type === "3-3-3-3"}
-                                    >
-                                      Four columns
-                                    </option>
-                                  </select>
                                 </div>
                               </div>
                             )}
@@ -304,7 +393,14 @@ const initialItems = parseLayoutItems(itemsParam);
             {item.type === "card" ? (
               <Card groupNumber={index + 1} cardNumber={index + 1} />
             ) : (
-              <Layout type={item.layout?.type || "12"}>
+              <Layout
+                type={item.layout?.type || "12"}
+                contentAlignment={
+                  item.layout?.contentAlignment || "equalHeightRows"
+                }
+                contentGap={item.layout?.contentGap || 32}
+                verticalMargins={item.layout?.verticalMargins || false}
+              >
                 {item.layout?.items.map((subItem: any, subIndex: number) => (
                   <ContentArea>
                     {subItem.type === "card" ? (
@@ -477,16 +573,6 @@ const initialItems = parseLayoutItems(itemsParam);
     border-left: 2px solid #eee;
   }
 
-  .nested-preview-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4px 8px;
-    background: #f5f5f5;
-    border-radius: 4px;
-    margin-bottom: 4px;
-  }
-
   .layout-type-select {
     margin-top: 8px;
   }
@@ -550,6 +636,26 @@ const initialItems = parseLayoutItems(itemsParam);
     background: white;
     min-width: 200px;
   }
+
+  .nested-layout-controls {
+    display: flex;
+    gap: 1rem;
+    margin: 0.5rem 0 1rem 0;
+  }
+
+  .nested-layout-controls select {
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+  }
+
+  .nested-content-alignment,
+  .nested-gap-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 </style>
 
 <script>
@@ -596,15 +702,37 @@ const initialItems = parseLayoutItems(itemsParam);
         const layoutType = (
           item.querySelector(".nested-layout-type") as HTMLSelectElement
         )?.value;
+        const contentAlignment = (
+          item.querySelector(
+            ".nested-content-alignment-select",
+          ) as HTMLSelectElement
+        )?.value;
+        const contentGap = Number(
+          (
+            item.querySelector(
+              ".nested-content-gap-select",
+            ) as HTMLSelectElement
+          )?.value,
+        );
+        const verticalMargins = (
+          item.querySelector(
+            ".nested-vertical-margins-toggle",
+          ) as HTMLInputElement
+        )?.checked;
+
         const nestedItems: any = [];
         item.querySelectorAll(".nested-preview-item").forEach(() => {
           nestedItems.push({ type: "card" });
         });
+
         items.push({
           type: "layout",
           layout: {
             type: layoutType || "12",
             items: nestedItems,
+            contentAlignment: contentAlignment || "equalHeightRows",
+            contentGap: contentGap || 32,
+            verticalMargins: verticalMargins || false,
           },
         });
       }
@@ -725,10 +853,24 @@ const initialItems = parseLayoutItems(itemsParam);
   }
 
   function initializeNestedControls() {
+    document.addEventListener("change", (e) => {
+      const target = e.target as HTMLElement;
+      if (
+        target.classList.contains("nested-layout-type") ||
+        target.classList.contains("nested-content-alignment-select") ||
+        target.classList.contains("nested-content-gap-select") ||
+        target.classList.contains("nested-vertical-margins-toggle")
+      ) {
+        const items = getCurrentItems();
+        const currentLayout =
+          new URLSearchParams(window.location.search).get("layout") || "12";
+        updateURL(currentLayout, items);
+      }
+    });
+
+    // Handle removing nested items
     document.addEventListener("click", (e) => {
       const target = e.target as HTMLElement;
-
-      // Handle removing nested items
       if (target.classList.contains("remove-nested-item")) {
         const parentIndex = parseInt(
           target.getAttribute("data-parent-index") || "0",
@@ -742,8 +884,11 @@ const initialItems = parseLayoutItems(itemsParam);
           updateURL(currentLayout, items);
         }
       }
+    });
 
-      // Handle adding nested items
+    // Handle adding nested items
+    document.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
       if (target.classList.contains("add-nested-item")) {
         const parentIndex = parseInt(
           target.getAttribute("data-parent-index") || "0",
@@ -755,17 +900,6 @@ const initialItems = parseLayoutItems(itemsParam);
             new URLSearchParams(window.location.search).get("layout") || "12";
           updateURL(currentLayout, items);
         }
-      }
-    });
-
-    // Handle layout type changes
-    document.addEventListener("change", (e) => {
-      const target = e.target as HTMLElement;
-      if (target.classList.contains("nested-layout-type")) {
-        const items = getCurrentItems();
-        const currentLayout =
-          new URLSearchParams(window.location.search).get("layout") || "12";
-        updateURL(currentLayout, items);
       }
     });
   }
