@@ -27,8 +27,7 @@ function verticalMarginsClass(verticalMargins: Props["verticalMargins"]) {
 const html = await Astro.slots.render("default");
 const { document } = parseHTML(html);
 const numberOfSlots = document.children.length;
-const atLeastThreeSlots = numberOfSlots >= 3;
-const slotsDivisibleByThree = numberOfSlots % 3 === 0;
+const remainder = numberOfSlots % 3;
 
 const {
   type = "12",
@@ -43,6 +42,7 @@ const {
   class:list={[
     "layout",
     `layout-${type}`,
+    remainder === 2 && "first-item-full-width",
     contentAlignmentClass(contentAlignment),
     verticalMarginsClass(verticalMargins),
   ]}
@@ -53,8 +53,7 @@ const {
 
 <style
   define:vars={{
-    atLeastThreeSlots: atLeastThreeSlots ? "initial" : "-1 / 1",
-    slotsDivisibleByThree: slotsDivisibleByThree ? "initial" : "-1 / 1",
+    remainder: remainder ? "initial" : "-1 / 1",
     "content-gap": `${contentGap}px`,
     "vertical-margins": verticalMargins ? "64px" : "0",
   }}
@@ -88,10 +87,7 @@ const {
   @container layout-container (min-width: 544px) {
     .layout {
       &.layout-6-6,
-      &.layout-4-4-4,
-      &.layout-3-3-3-3,
-      &.layout-4-8,
-      &.layout-8-4 {
+      &.layout-3-3-3-3 {
         grid-template-columns: repeat(2, 1fr);
       }
 
@@ -101,9 +97,13 @@ const {
       }
 
       &.layout-4-4-4 {
-        .layout-container:nth-child(n + 3),
-        .content-area:nth-child(n + 3) {
-          grid-column: var(--atLeastThreeSlots);
+        grid-template-columns: repeat(2, 1fr);
+
+        /* Special handling of items when in 2-column mode */
+        &.first-item-full-width {
+          > :first-child {
+            grid-column: 1 / -1;
+          }
         }
       }
     }
@@ -141,9 +141,11 @@ const {
       &.layout-4-4-4 {
         grid-template-columns: repeat(3, 1fr);
 
-        .layout-container:nth-child(n + 6),
-        .content-area:nth-child(n + 6) {
-          grid-column: var(--slotsDivisibleByThree);
+        /* Special handling for 4-4-4 layout when in 2-column mode */
+        &.first-item-full-width {
+          > :first-child {
+            grid-column: 1 / 3;
+          }
         }
       }
     }
