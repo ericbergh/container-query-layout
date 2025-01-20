@@ -55,8 +55,8 @@ const {
   define:vars={{
     atLeastThreeSlots: atLeastThreeSlots ? "initial" : "-1 / 1",
     slotsDivisibleByThree: slotsDivisibleByThree ? "initial" : "-1 / 1",
-    contentGap: contentGap,
-    verticalMargins: verticalMargins,
+    "content-gap": `${contentGap}px`,
+    "vertical-margins": verticalMargins ? "64px" : "0",
   }}
 >
   .layout {
