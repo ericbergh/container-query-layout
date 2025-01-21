@@ -1,145 +1,91 @@
 ---
-import LayoutContainer from "../components/layout_container.astro";
 import Layout from "../components/layout.astro";
-import ContentArea from "../components/content_area.astro";
 import Card from "../components/card.astro";
 import RootLayout from "../layouts/root_layout.astro";
 ---
 
-<RootLayout title="Grid Layout Demo">
-  <LayoutContainer>
-    <Layout type="12">
-      <ContentArea>
-        <!-- <div class="description">
-    <h2>The One Grid</h2>
-    <ul>
-      <li>This grid can either have content or grids as immediate children.</li>
-      <li>The width of the grid items may never be less than 256px.</li>
-      <li>The column gap is either 0, 16px or 32px but we account for 32px.</li>
-      <li>
-        We assume that each grid will have the same number of immediate children
-        as it does columns.
-      </li>
-    </ul>
-  </div> -->
-        <div class="grid-showcase">
-          <section>
-            <h2>4 column grid with 4 nested grids of 4 cards</h2>
-            <LayoutContainer>
-              <Layout type="3-3-3-3">
-                {
-                  Array.from({ length: 4 }).map((_, groupIndex) => (
-                    <LayoutContainer>
-                      <Layout type="12">
-                        {Array.from({ length: 4 }).map((_, index) => (
-                          <ContentArea>
-                            <Card
-                              groupNumber={groupIndex + 1}
-                              cardNumber={index + 1}
-                            />
-                          </ContentArea>
-                        ))}
-                      </Layout>
-                    </LayoutContainer>
-                  ))
-                }
+<RootLayout title="Layout types">
+  <Layout type="12">
+    <div class="grid-showcase">
+      <section>
+        <h2>4 column grid with 4 nested grids of 4 cards</h2>
+        <Layout type="3-3-3-3">
+          {
+            Array.from({ length: 4 }).map((_, groupIndex) => (
+              <Layout type="12">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <Card groupNumber={groupIndex + 1} cardNumber={index + 1} />
+                ))}
               </Layout>
-            </LayoutContainer>
-          </section>
-          <section>
-            <h2>3 column grid with 3 nested grids of 3 cards</h2>
-            <LayoutContainer>
+            ))
+          }
+        </Layout>
+      </section>
+      <section>
+        <h2>3 column grid with 3 nested grids of 3 cards</h2>
+        <Layout type="4-4-4">
+          {
+            Array.from({ length: 3 }).map((_, groupIndex) => (
               <Layout type="4-4-4">
-                {
-                  Array.from({ length: 3 }).map((_, groupIndex) => (
-                    <LayoutContainer>
-                      <Layout type="4-4-4">
-                        {Array.from({ length: 3 }).map((_, index) => (
-                          <ContentArea>
-                            <Card
-                              groupNumber={groupIndex + 1}
-                              cardNumber={index + 1}
-                            />
-                          </ContentArea>
-                        ))}
-                      </Layout>
-                    </LayoutContainer>
-                  ))
-                }
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <Card groupNumber={groupIndex + 1} cardNumber={index + 1} />
+                ))}
               </Layout>
-            </LayoutContainer>
-          </section>
-          <section>
-            <h2>3 column grid with 3 cards</h2>
-            <LayoutContainer>
-              <Layout type="4-4-4">
-                {
-                  Array.from({ length: 3 }).map((_, index) => (
-                    <ContentArea>
-                      <Card groupNumber={1} cardNumber={index + 1} />
-                    </ContentArea>
-                  ))
-                }
-              </Layout>
-            </LayoutContainer>
-          </section>
-          <section>
-            <h2>2 column 4/8 grid with 2 cards</h2>
-            <LayoutContainer>
-              <Layout type="4-8">
-                {
-                  Array.from({ length: 2 }).map((_, index) => (
-                    <ContentArea>
-                      <Card groupNumber={1} cardNumber={index + 1} />
-                    </ContentArea>
-                  ))
-                }
-              </Layout>
-            </LayoutContainer>
-          </section>
-          <section>
-            <h2>2 column 8/4 grid with 2 cards</h2>
-            <LayoutContainer>
-              <Layout type="8-4">
-                {
-                  Array.from({ length: 2 }).map((_, index) => (
-                    <ContentArea>
-                      <Card groupNumber={1} cardNumber={index + 1} />
-                    </ContentArea>
-                  ))
-                }
-              </Layout>
-            </LayoutContainer>
-          </section>
-          <section>
-            <h2>2 column 8/4 grid with 2 nested 1 column grids of 2 cards</h2>
-            <LayoutContainer>
-              <Layout type="8-4">
-                <Layout type="12">
-                  {
-                    Array.from({ length: 2 }).map((_, index) => (
-                      <ContentArea>
-                        <Card groupNumber={1} cardNumber={index + 1} />
-                      </ContentArea>
-                    ))
-                  }
-                </Layout>
-                <Layout type="12">
-                  {
-                    Array.from({ length: 2 }).map((_, index) => (
-                      <ContentArea>
-                        <Card groupNumber={1} cardNumber={index + 1} />
-                      </ContentArea>
-                    ))
-                  }
-                </Layout>
-              </Layout>
-            </LayoutContainer>
-          </section>
-        </div>
-      </ContentArea>
-    </Layout>
-  </LayoutContainer>
+            ))
+          }
+        </Layout>
+      </section>
+      <section>
+        <h2>3 column grid with 3 cards</h2>
+        <Layout type="4-4-4">
+          {
+            Array.from({ length: 3 }).map((_, index) => (
+              <Card groupNumber={1} cardNumber={index + 1} />
+            ))
+          }
+        </Layout>
+      </section>
+      <section>
+        <h2>2 column 4/8 grid with 2 cards</h2>
+        <Layout type="4-8">
+          {
+            Array.from({ length: 2 }).map((_, index) => (
+              <Card groupNumber={1} cardNumber={index + 1} />
+            ))
+          }
+        </Layout>
+      </section>
+      <section>
+        <h2>2 column 8/4 grid with 2 cards</h2>
+        <Layout type="8-4">
+          {
+            Array.from({ length: 2 }).map((_, index) => (
+              <Card groupNumber={1} cardNumber={index + 1} />
+            ))
+          }
+        </Layout>
+      </section>
+      <section>
+        <h2>2 column 8/4 grid with 2 nested 1 column grids of 2 cards</h2>
+        <Layout type="8-4">
+          <Layout type="12">
+            {
+              Array.from({ length: 2 }).map((_, index) => (
+                <Card groupNumber={1} cardNumber={index + 1} />
+              ))
+            }
+          </Layout>
+          <Layout type="12">
+            {
+              Array.from({ length: 2 }).map((_, index) => (
+                <Card groupNumber={1} cardNumber={index + 1} />
+              ))
+            }
+          </Layout>
+        </Layout>
+      </section>
+    </div>
+  </Layout>
 </RootLayout>
 
 <style>

@@ -1,4 +1,6 @@
 ---
+import ContentArea from "./content_area.astro";
+
 export type LayoutType = "12" | "6-6" | "4-4-4" | "3-3-3-3" | "4-8" | "8-4";
 // prettier-ignore
 export type ContentAlignment = "equalHeightRows" | "individualHeightRows" | "individualHeightItems";
@@ -37,13 +39,14 @@ function layout444SpanExceptions(numberOfSlots: number, remainder: number) {
 
 const html = await Astro.slots.render("default");
 const { document } = parseHTML(html);
-const numberOfSlots = document.children.length;
+const slotContent = Array.from(document.children);
+const numberOfSlots = slotContent.length;
 const remainder = numberOfSlots % 3;
 
 const {
   fullWidth = false,
   type = "12",
-  contentAlignment = "equalHeightRows",
+  contentAlignment = "individualHeightRows",
   id,
   contentGap = 32,
   verticalMargins = false,
@@ -59,9 +62,14 @@ const {
       contentAlignmentClass(contentAlignment),
       verticalMarginsClass(verticalMargins),
     ]}
-    id={id}
   >
-    <slot />
+    {
+      slotContent.map((content) => (
+        <ContentArea>
+          <Fragment set:html={content.outerHTML} />
+        </ContentArea>
+      ))
+    }
   </div>
 </div>
 
@@ -91,7 +99,7 @@ const {
     }
 
     &.individual-height-rows {
-      grid-template-rows: repeat(auto-fill, minmax(256px, 1fr));
+      grid-template-rows: repeat(auto-fill, minmax(min-content, 1fr));
     }
 
     &.individual-height-items {

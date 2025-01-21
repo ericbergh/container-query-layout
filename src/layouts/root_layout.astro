@@ -1,12 +1,31 @@
+---
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Astro</title>
+    <title>{title}</title>
   </head>
   <body>
+    <nav>
+      <ul>
+        Demos:
+        <li>
+          <a href="/">CMS experience</a>
+        </li>
+        <li>
+          <a href="/layout-types">Layout types</a>
+        </li>
+      </ul>
+    </nav>
     <main>
       <slot />
     </main>
@@ -22,6 +41,19 @@
 
   * {
     min-width: 0;
+  }
+
+  nav {
+    ul {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+    }
+
+    li {
+      list-style: none;
+    }
   }
 
   body {

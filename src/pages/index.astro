@@ -1,5 +1,9 @@
 ---
-import LayoutContainer from "../components/layout_container.astro";
+// Astro.response.headers.set(
+//   "Cache-Control",
+//   "public, max-age=60, stale-while-revalidate=300",
+// );
+
 import Layout from "../components/layout.astro";
 import ContentArea from "../components/content_area.astro";
 import Card from "../components/card.astro";
@@ -65,342 +69,307 @@ const itemsParam = urlParams.get("items");
 const initialItems = parseLayoutItems(itemsParam);
 ---
 
-<RootLayout title="Grid Layout Demo">
-  <LayoutContainer>
-    <Layout type="12">
-      <ContentArea>
-        <!-- <div class="description">
-    <h2>The One Grid</h2>
-    <ul>
-      <li>This grid can either have content or grids as immediate children.</li>
-      <li>The width of the grid items may never be less than 256px.</li>
-      <li>The column gap is either 0, 16px or 32px but we account for 32px.</li>
-      <li>
-        We assume that each grid will have the same number of immediate children
-        as it does columns.
-      </li>
-    </ul>
-  </div> -->
-        <div class="grid-showcase">
-          <section class="grid-demo">
-            <h2>Layout block</h2>
-            <div class="controls">
-              <h3>Type</h3>
-              <p>
-                The amount of columns in the layout block. This holds true as
-                long as the individual columns doesn't get below 256px, after
-                which it will be reduced to the closest most columns.
-              </p>
-              <div class="layout-type-controls">
-                <select id="layout-type-select">
-                  <option value="12" selected={initialLayout === "12"}>
-                    12 - one column
-                  </option>
-                  <option value="6-6" selected={initialLayout === "6-6"}>
-                    6-6 - two columns
-                  </option>
-                  <option value="4-4-4" selected={initialLayout === "4-4-4"}>
-                    4-4-4 - three columns
-                  </option>
-                  <option
-                    value="3-3-3-3"
-                    selected={initialLayout === "3-3-3-3"}
-                  >
-                    3-3-3-3 - four columns
-                  </option>
-                  <option value="4-8" selected={initialLayout === "4-8"}>
-                    4-8 - two columns, small/big
-                  </option>
-                  <option value="8-4" selected={initialLayout === "8-4"}>
-                    8-4 - two columns, big/small
-                  </option>
-                </select>
-              </div>
-              <div class="content-alignment-controls">
-                <h3>Content alignment</h3>
-                <select id="content-alignment-select">
-                  <option
-                    value="equalHeightRows"
-                    selected={initialContentAlignment === "equalHeightRows"}
-                  >
-                    Equal Height Rows
-                  </option>
-                  <option
-                    value="individualHeightRows"
-                    selected={initialContentAlignment ===
-                      "individualHeightRows"}
-                  >
-                    Individual Height Rows
-                  </option>
-                  <option
-                    value="individualHeightItems"
-                    selected={initialContentAlignment ===
-                      "individualHeightItems"}
-                  >
-                    Individual Height Items
-                  </option>
-                </select>
-              </div>
-              <div class="gap-controls">
-                <h3>Content gap</h3>
-                <select id="content-gap-select">
-                  <option value="0" selected={initialContentGap === 0}>
-                    No gap (0px)
-                  </option>
-                  <option value="16" selected={initialContentGap === 16}>
-                    Small gap (16px)
-                  </option>
-                  <option value="32" selected={initialContentGap === 32}>
-                    Large gap (32px)
-                  </option>
-                </select>
-              </div>
-              <div class="margin-controls">
-                <label class="checkbox-label">
-                  <input
-                    type="checkbox"
-                    id="vertical-margins-toggle"
-                    checked={initialVerticalMargins}
-                  />
-                  Vertical margins
-                </label>
-              </div>
-              <div class="width-controls">
-                <label class="checkbox-label">
-                  <input
-                    type="checkbox"
-                    id="full-width-toggle"
-                    checked={urlParams.get("fullWidth") === "true"}
-                  />
-                  Full width
-                </label>
-              </div>
-              <div class="content-controls">
-                <h3>Content area</h3>
-                <div class="content-preview">
-                  <div class="preview-grid" id="content-preview">
-                    {
-                      initialItems.map((item: any, index: number) => (
-                        <div
-                          class="preview-item"
-                          data-index={index}
-                          data-type={item.type}
-                        >
-                          {item.type === "card" ? (
-                            <span>CardBlock</span>
-                          ) : (
-                            <div class="nested-layout">
-                              <span>LayoutBlock</span>
-                              <div class="nested-layout-controls">
-                                <div class="nested-layout-type-select">
-                                  <select
-                                    class="nested-layout-type"
-                                    data-index={index}
-                                  >
-                                    <option
-                                      value="12"
-                                      selected={item.layout?.type === "12"}
-                                    >
-                                      12 - one column
-                                    </option>
-                                    <option
-                                      value="6-6"
-                                      selected={item.layout?.type === "6-6"}
-                                    >
-                                      6-6 - two columns
-                                    </option>
-                                    <option
-                                      value="4-4-4"
-                                      selected={item.layout?.type === "4-4-4"}
-                                    >
-                                      4-4-4 - three columns
-                                    </option>
-                                    <option
-                                      value="3-3-3-3"
-                                      selected={item.layout?.type === "3-3-3-3"}
-                                    >
-                                      3-3-3-3 - four columns
-                                    </option>
-                                  </select>
-                                </div>
-                                <div class="nested-content-alignment">
-                                  <select
-                                    class="nested-content-alignment-select"
-                                    data-index={index}
-                                  >
-                                    <option
-                                      value="equalHeightRows"
-                                      selected={
-                                        item.layout?.contentAlignment ===
-                                        "equalHeightRows"
-                                      }
-                                    >
-                                      Equal Height Rows
-                                    </option>
-                                    <option
-                                      value="individualHeightRows"
-                                      selected={
-                                        item.layout?.contentAlignment ===
-                                        "individualHeightRows"
-                                      }
-                                    >
-                                      Individual Height Rows
-                                    </option>
-                                    <option
-                                      value="individualHeightItems"
-                                      selected={
-                                        item.layout?.contentAlignment ===
-                                        "individualHeightItems"
-                                      }
-                                    >
-                                      Individual Height Items
-                                    </option>
-                                  </select>
-                                </div>
-                                <div class="nested-gap-controls">
-                                  <select
-                                    class="nested-content-gap-select"
-                                    data-index={index}
-                                  >
-                                    <option
-                                      value="0"
-                                      selected={item.layout?.contentGap === 0}
-                                    >
-                                      No gap (0px)
-                                    </option>
-                                    <option
-                                      value="16"
-                                      selected={item.layout?.contentGap === 16}
-                                    >
-                                      Small gap (16px)
-                                    </option>
-                                    <option
-                                      value="32"
-                                      selected={item.layout?.contentGap === 32}
-                                    >
-                                      Large gap (32px)
-                                    </option>
-                                  </select>
-                                </div>
-                                <label class="checkbox-label">
-                                  <input
-                                    type="checkbox"
-                                    class="nested-vertical-margins-toggle"
-                                    data-index={index}
-                                    checked={item.layout?.verticalMargins}
-                                  />
-                                  Vertical margins
-                                </label>
-                              </div>
-                              <div
-                                class="preview-grid"
-                                style="position: unset;"
+<RootLayout title="CMS experience">
+  <Layout type="12">
+    <div class="grid-showcase">
+      <section class="grid-demo">
+        <h2>Layout block</h2>
+        <div class="controls">
+          <h3>Type</h3>
+          <p>
+            The amount of columns in the layout block. This holds true as long
+            as the individual columns doesn't get below 256px, after which it
+            will be reduced to the closest most columns.
+          </p>
+          <div class="layout-type-controls">
+            <select id="layout-type-select">
+              <option value="12" selected={initialLayout === "12"}>
+                12 - one column
+              </option>
+              <option value="6-6" selected={initialLayout === "6-6"}>
+                6-6 - two columns
+              </option>
+              <option value="4-4-4" selected={initialLayout === "4-4-4"}>
+                4-4-4 - three columns
+              </option>
+              <option value="3-3-3-3" selected={initialLayout === "3-3-3-3"}>
+                3-3-3-3 - four columns
+              </option>
+              <option value="4-8" selected={initialLayout === "4-8"}>
+                4-8 - two columns, small/big
+              </option>
+              <option value="8-4" selected={initialLayout === "8-4"}>
+                8-4 - two columns, big/small
+              </option>
+            </select>
+          </div>
+          <div class="content-alignment-controls">
+            <h3>Content alignment</h3>
+            <select id="content-alignment-select">
+              <option
+                value="equalHeightRows"
+                selected={initialContentAlignment === "equalHeightRows"}
+              >
+                Equal Height Rows
+              </option>
+              <option
+                value="individualHeightRows"
+                selected={initialContentAlignment === "individualHeightRows"}
+              >
+                Individual Height Rows
+              </option>
+              <option
+                value="individualHeightItems"
+                selected={initialContentAlignment === "individualHeightItems"}
+              >
+                Individual Height Items
+              </option>
+            </select>
+          </div>
+          <div class="gap-controls">
+            <h3>Content gap</h3>
+            <select id="content-gap-select">
+              <option value="0" selected={initialContentGap === 0}>
+                No gap (0px)
+              </option>
+              <option value="16" selected={initialContentGap === 16}>
+                Small gap (16px)
+              </option>
+              <option value="32" selected={initialContentGap === 32}>
+                Large gap (32px)
+              </option>
+            </select>
+          </div>
+          <div class="margin-controls">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                id="vertical-margins-toggle"
+                checked={initialVerticalMargins}
+              />
+              Vertical margins
+            </label>
+          </div>
+          <div class="width-controls">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                id="full-width-toggle"
+                checked={urlParams.get("fullWidth") === "true"}
+              />
+              Full width
+            </label>
+          </div>
+          <div class="content-controls">
+            <h3>Content area</h3>
+            <div class="content-preview">
+              <div class="preview-grid" id="content-preview">
+                {
+                  initialItems.map((item: any, index: number) => (
+                    <div
+                      class="preview-item"
+                      data-index={index}
+                      data-type={item.type}
+                    >
+                      {item.type === "card" ? (
+                        <span>CardBlock</span>
+                      ) : (
+                        <div class="nested-layout">
+                          <span>LayoutBlock</span>
+                          <div class="nested-layout-controls">
+                            <div class="nested-layout-type-select">
+                              <select
+                                class="nested-layout-type"
+                                data-index={index}
                               >
-                                {item.layout?.items?.map(
-                                  (subItem: any, subIndex: number) => (
-                                    <div
-                                      class="preview-item nested-preview-item"
-                                      data-parent-index={index}
-                                      data-index={subIndex}
-                                    >
-                                      <span>
-                                        {subItem.type === "card"
-                                          ? "CardBlock"
-                                          : "LayoutBlock"}
-                                      </span>
-                                      <button
-                                        class="remove-nested-item"
-                                        data-parent-index={index}
-                                        data-index={subIndex}
-                                        title="Remove this item"
-                                      >
-                                        ×
-                                      </button>
-                                    </div>
-                                  ),
-                                )}
-                                <div class="nested-controls">
+                                <option
+                                  value="12"
+                                  selected={item.layout?.type === "12"}
+                                >
+                                  12 - one column
+                                </option>
+                                <option
+                                  value="6-6"
+                                  selected={item.layout?.type === "6-6"}
+                                >
+                                  6-6 - two columns
+                                </option>
+                                <option
+                                  value="4-4-4"
+                                  selected={item.layout?.type === "4-4-4"}
+                                >
+                                  4-4-4 - three columns
+                                </option>
+                                <option
+                                  value="3-3-3-3"
+                                  selected={item.layout?.type === "3-3-3-3"}
+                                >
+                                  3-3-3-3 - four columns
+                                </option>
+                              </select>
+                            </div>
+                            <div class="nested-content-alignment">
+                              <select
+                                class="nested-content-alignment-select"
+                                data-index={index}
+                              >
+                                <option
+                                  value="equalHeightRows"
+                                  selected={
+                                    item.layout?.contentAlignment ===
+                                    "equalHeightRows"
+                                  }
+                                >
+                                  Equal Height Rows
+                                </option>
+                                <option
+                                  value="individualHeightRows"
+                                  selected={
+                                    item.layout?.contentAlignment ===
+                                    "individualHeightRows"
+                                  }
+                                >
+                                  Individual Height Rows
+                                </option>
+                                <option
+                                  value="individualHeightItems"
+                                  selected={
+                                    item.layout?.contentAlignment ===
+                                    "individualHeightItems"
+                                  }
+                                >
+                                  Individual Height Items
+                                </option>
+                              </select>
+                            </div>
+                            <div class="nested-gap-controls">
+                              <select
+                                class="nested-content-gap-select"
+                                data-index={index}
+                              >
+                                <option
+                                  value="0"
+                                  selected={item.layout?.contentGap === 0}
+                                >
+                                  No gap (0px)
+                                </option>
+                                <option
+                                  value="16"
+                                  selected={item.layout?.contentGap === 16}
+                                >
+                                  Small gap (16px)
+                                </option>
+                                <option
+                                  value="32"
+                                  selected={item.layout?.contentGap === 32}
+                                >
+                                  Large gap (32px)
+                                </option>
+                              </select>
+                            </div>
+                            <label class="checkbox-label">
+                              <input
+                                type="checkbox"
+                                class="nested-vertical-margins-toggle"
+                                data-index={index}
+                                checked={item.layout?.verticalMargins}
+                              />
+                              Vertical margins
+                            </label>
+                          </div>
+                          <div class="preview-grid" style="position: unset;">
+                            {item.layout?.items?.map(
+                              (subItem: any, subIndex: number) => (
+                                <div
+                                  class="preview-item nested-preview-item"
+                                  data-parent-index={index}
+                                  data-index={subIndex}
+                                >
+                                  <span>
+                                    {subItem.type === "card"
+                                      ? "CardBlock"
+                                      : "LayoutBlock"}
+                                  </span>
                                   <button
-                                    class="add-nested-item"
+                                    class="remove-nested-item"
                                     data-parent-index={index}
+                                    data-index={subIndex}
+                                    title="Remove this item"
                                   >
-                                    + Add Card
+                                    ×
                                   </button>
                                 </div>
-                              </div>
+                              ),
+                            )}
+                            <div class="nested-controls">
+                              <button
+                                class="add-nested-item"
+                                data-parent-index={index}
+                              >
+                                + Add Card
+                              </button>
                             </div>
-                          )}
-                          <button class="remove-item" title="Remove this item">
-                            ×
-                          </button>
+                          </div>
                         </div>
-                      ))
-                    }
-                    <div class="add-controls">
-                      <button class="add-item" data-type="card"
-                        >+ Add CardBlock</button
-                      >
-                      <button class="add-item" data-type="layout"
-                        >+ Add LayoutBlock</button
-                      >
+                      )}
+                      <button class="remove-item" title="Remove this item">
+                        ×
+                      </button>
                     </div>
-                  </div>
+                  ))
+                }
+                <div class="add-controls">
+                  <button class="add-item" data-type="card"
+                    >+ Add CardBlock</button
+                  >
+                  <button class="add-item" data-type="layout"
+                    >+ Add LayoutBlock</button
+                  >
                 </div>
               </div>
             </div>
-          </section>
+          </div>
         </div>
-      </ContentArea>
-    </Layout>
-  </LayoutContainer>
-  <LayoutContainer>
-    <Layout type="12">
-      <ContentArea>
-        <h3>Preview</h3>
-      </ContentArea>
-    </Layout>
-  </LayoutContainer>
-  <LayoutContainer
+      </section>
+    </div>
+  </Layout>
+  <Layout type="12">
+    <h3>Preview</h3>
+  </Layout>
+  <Layout
     id="demo-layout-container"
     fullWidth={urlParams.get("fullWidth") === "true"}
+    type={initialLayout}
+    contentAlignment={initialContentAlignment}
+    contentGap={initialContentGap}
+    verticalMargins={initialVerticalMargins}
   >
-    <Layout
-      type={initialLayout}
-      contentAlignment={initialContentAlignment}
-      contentGap={initialContentGap}
-      verticalMargins={initialVerticalMargins}
-    >
-      {
-        initialItems.map((item: any, index: number) => (
-          <ContentArea>
-            {item.type === "card" ? (
-              <Card groupNumber={index + 1} cardNumber={index + 1} />
-            ) : (
-              <Layout
-                type={item.layout?.type || "12"}
-                contentAlignment={
-                  item.layout?.contentAlignment || "equalHeightRows"
-                }
-                contentGap={item.layout?.contentGap || 32}
-                verticalMargins={item.layout?.verticalMargins || false}
-              >
-                {item.layout?.items.map((subItem: any, subIndex: number) => (
-                  <ContentArea>
-                    {subItem.type === "card" ? (
-                      <Card groupNumber={index + 1} cardNumber={subIndex + 1} />
-                    ) : (
-                      // Handle nested layouts here if needed
-                      <Card groupNumber={index + 1} cardNumber={subIndex + 1} />
-                    )}
-                  </ContentArea>
-                ))}
-              </Layout>
+    {
+      initialItems.map((item: any, index: number) =>
+        item.type === "card" ? (
+          <Card groupNumber={index + 1} cardNumber={index + 1} />
+        ) : (
+          <Layout
+            type={item.layout?.type || "12"}
+            contentAlignment={
+              item.layout?.contentAlignment || "equalHeightRows"
+            }
+            contentGap={item.layout?.contentGap || 32}
+            verticalMargins={item.layout?.verticalMargins || false}
+          >
+            {item.layout?.items.map((subItem: any, subIndex: number) =>
+              subItem.type === "card" ? (
+                <Card groupNumber={index + 1} cardNumber={subIndex + 1} />
+              ) : (
+                // Handle nested layouts here if needed
+                <Card groupNumber={index + 1} cardNumber={subIndex + 1} />
+              ),
             )}
-          </ContentArea>
-        ))
-      }
-    </Layout>
-  </LayoutContainer>
+          </Layout>
+        ),
+      )
+    }
+  </Layout>
 </RootLayout>
 
 <style>
