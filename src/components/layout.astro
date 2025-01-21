@@ -4,6 +4,7 @@ export type LayoutType = "12" | "6-6" | "4-4-4" | "3-3-3-3" | "4-8" | "8-4";
 export type ContentAlignment = "equalHeightRows" | "individualHeightRows" | "individualHeightItems";
 
 interface Props {
+  fullWidth?: boolean;
   type?: LayoutType;
   contentAlignment?: ContentAlignment;
   contentGap?: 0 | 16 | 32;
@@ -24,12 +25,23 @@ function verticalMarginsClass(verticalMargins: Props["verticalMargins"]) {
   return verticalMargins ? "vertical-margins" : "";
 }
 
+function layout444SpanExceptions(numberOfSlots: number, remainder: number) {
+  if (numberOfSlots === 1) return "first-span-all";
+  if (numberOfSlots === 2) return "first-span-2";
+
+  if (remainder === 1) return "first-last-span-2";
+  if (remainder === 2) return "first-span-2";
+
+  return "";
+}
+
 const html = await Astro.slots.render("default");
 const { document } = parseHTML(html);
 const numberOfSlots = document.children.length;
 const remainder = numberOfSlots % 3;
 
 const {
+  fullWidth = false,
   type = "12",
   contentAlignment = "equalHeightRows",
   id,
@@ -38,26 +50,36 @@ const {
 } = Astro.props;
 ---
 
-<div
-  class:list={[
-    "layout",
-    `layout-${type}`,
-    remainder === 2 && "first-item-full-width",
-    contentAlignmentClass(contentAlignment),
-    verticalMarginsClass(verticalMargins),
-  ]}
-  id={id}
->
-  <slot />
+<div class:list={["layout-container", fullWidth && "full-width"]} id={id}>
+  <div
+    class:list={[
+      "layout",
+      `layout-${type}`,
+      layout444SpanExceptions(numberOfSlots, remainder),
+      contentAlignmentClass(contentAlignment),
+      verticalMarginsClass(verticalMargins),
+    ]}
+    id={id}
+  >
+    <slot />
+  </div>
 </div>
 
 <style
   define:vars={{
-    remainder: remainder ? "initial" : "-1 / 1",
     "content-gap": `${contentGap}px`,
     "vertical-margins": verticalMargins ? "64px" : "0",
   }}
 >
+  .layout-container {
+    container: layout-container / inline-size;
+    grid-column: 2;
+
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+  }
+
   .layout {
     display: grid;
     column-gap: var(--content-gap);
@@ -141,10 +163,25 @@ const {
       &.layout-4-4-4 {
         grid-template-columns: repeat(3, 1fr);
 
-        /* Special handling for 4-4-4 layout when in 2-column mode */
-        &.first-item-full-width {
+        &.first-span-all {
           > :first-child {
-            grid-column: 1 / 3;
+            grid-column: 1 / -1;
+          }
+        }
+
+        &.first-span-2 {
+          > :first-child {
+            grid-column: span 2;
+          }
+        }
+
+        &.first-last-span-2 {
+          > :first-child {
+            grid-column: span 2;
+          }
+
+          > :last-child {
+            grid-column: span 2;
           }
         }
       }

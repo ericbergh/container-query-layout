@@ -7,11 +7,10 @@ import RootLayout from "../layouts/root_layout.astro";
 import type { LayoutType, ContentAlignment } from "../components/layout.astro";
 
 function validateLayoutUrlParam(layout: string | null): LayoutType {
-  if (!layout) {
-    return "12";
-  }
-
-  if (["12", "6-6", "4-4-4", "3-3-3-3", "4-8", "8-4"].includes(layout)) {
+  if (
+    layout &&
+    ["12", "6-6", "4-4-4", "3-3-3-3", "4-8", "8-4"].includes(layout)
+  ) {
     return layout as LayoutType;
   }
 
@@ -52,28 +51,12 @@ const initialVerticalMargins = urlParams.get("verticalMargins") === "true";
 
 // Update the parsing function
 function parseLayoutItems(itemsParam: string | null): any {
-  if (!itemsParam) {
-    return Array(4).fill({ type: "card" });
-  }
+  if (!itemsParam) return [];
   try {
     const items = JSON.parse(decodeURIComponent(itemsParam));
-    // Add default layout properties if they don't exist
-    return items.map((item: any) => {
-      if (item.type === "layout") {
-        return {
-          ...item,
-          layout: {
-            ...item.layout,
-            contentAlignment: item.layout.contentAlignment || "equalHeightRows",
-            contentGap: item.layout.contentGap || 32,
-            verticalMargins: item.layout.verticalMargins || false,
-          },
-        };
-      }
-      return item;
-    });
+    return items;
   } catch {
-    return Array(4).fill({ type: "card" });
+    return [];
   }
 }
 
@@ -203,150 +186,150 @@ const initialItems = parseLayoutItems(itemsParam);
                           data-index={index}
                           data-type={item.type}
                         >
-                          <span>
-                            {item.type === "card" ? (
-                              "CardBlock"
-                            ) : (
-                              <div class="nested-layout">
-                                <span>LayoutBlock</span>
-                                <div class="nested-layout-controls">
-                                  <div class="nested-layout-type-select">
-                                    <select
-                                      class="nested-layout-type"
-                                      data-index={index}
+                          {item.type === "card" ? (
+                            <span>CardBlock</span>
+                          ) : (
+                            <div class="nested-layout">
+                              <span>LayoutBlock</span>
+                              <div class="nested-layout-controls">
+                                <div class="nested-layout-type-select">
+                                  <select
+                                    class="nested-layout-type"
+                                    data-index={index}
+                                  >
+                                    <option
+                                      value="12"
+                                      selected={item.layout?.type === "12"}
                                     >
-                                      <option
-                                        value="12"
-                                        selected={item.layout?.type === "12"}
-                                      >
-                                        12 - one column
-                                      </option>
-                                      <option
-                                        value="6-6"
-                                        selected={item.layout?.type === "6-6"}
-                                      >
-                                        6-6 - two columns
-                                      </option>
-                                      <option
-                                        value="4-4-4"
-                                        selected={item.layout?.type === "4-4-4"}
-                                      >
-                                        4-4-4 - three columns
-                                      </option>
-                                      <option
-                                        value="3-3-3-3"
-                                        selected={
-                                          item.layout?.type === "3-3-3-3"
-                                        }
-                                      >
-                                        3-3-3-3 - four columns
-                                      </option>
-                                    </select>
-                                  </div>
-                                  <div class="nested-content-alignment">
-                                    <select
-                                      class="nested-content-alignment-select"
-                                      data-index={index}
+                                      12 - one column
+                                    </option>
+                                    <option
+                                      value="6-6"
+                                      selected={item.layout?.type === "6-6"}
                                     >
-                                      <option
-                                        value="equalHeightRows"
-                                        selected={
-                                          item.layout?.contentAlignment ===
-                                          "equalHeightRows"
-                                        }
-                                      >
-                                        Equal Height Rows
-                                      </option>
-                                      <option
-                                        value="individualHeightRows"
-                                        selected={
-                                          item.layout?.contentAlignment ===
-                                          "individualHeightRows"
-                                        }
-                                      >
-                                        Individual Height Rows
-                                      </option>
-                                      <option
-                                        value="individualHeightItems"
-                                        selected={
-                                          item.layout?.contentAlignment ===
-                                          "individualHeightItems"
-                                        }
-                                      >
-                                        Individual Height Items
-                                      </option>
-                                    </select>
-                                  </div>
-                                  <div class="nested-gap-controls">
-                                    <select
-                                      class="nested-content-gap-select"
-                                      data-index={index}
+                                      6-6 - two columns
+                                    </option>
+                                    <option
+                                      value="4-4-4"
+                                      selected={item.layout?.type === "4-4-4"}
                                     >
-                                      <option
-                                        value="0"
-                                        selected={item.layout?.contentGap === 0}
-                                      >
-                                        No gap (0px)
-                                      </option>
-                                      <option
-                                        value="16"
-                                        selected={
-                                          item.layout?.contentGap === 16
-                                        }
-                                      >
-                                        Small gap (16px)
-                                      </option>
-                                      <option
-                                        value="32"
-                                        selected={
-                                          item.layout?.contentGap === 32
-                                        }
-                                      >
-                                        Large gap (32px)
-                                      </option>
-                                    </select>
-                                  </div>
-                                  <label class="checkbox-label">
-                                    <input
-                                      type="checkbox"
-                                      class="nested-vertical-margins-toggle"
-                                      data-index={index}
-                                      checked={item.layout?.verticalMargins}
-                                    />
-                                    Vertical margins
-                                  </label>
+                                      4-4-4 - three columns
+                                    </option>
+                                    <option
+                                      value="3-3-3-3"
+                                      selected={item.layout?.type === "3-3-3-3"}
+                                    >
+                                      3-3-3-3 - four columns
+                                    </option>
+                                  </select>
                                 </div>
-                                <div class="preview-grid">
-                                  {item.layout?.items.map(
-                                    (subItem: any, subIndex: number) => (
-                                      <div class="preview-item">
+                                <div class="nested-content-alignment">
+                                  <select
+                                    class="nested-content-alignment-select"
+                                    data-index={index}
+                                  >
+                                    <option
+                                      value="equalHeightRows"
+                                      selected={
+                                        item.layout?.contentAlignment ===
+                                        "equalHeightRows"
+                                      }
+                                    >
+                                      Equal Height Rows
+                                    </option>
+                                    <option
+                                      value="individualHeightRows"
+                                      selected={
+                                        item.layout?.contentAlignment ===
+                                        "individualHeightRows"
+                                      }
+                                    >
+                                      Individual Height Rows
+                                    </option>
+                                    <option
+                                      value="individualHeightItems"
+                                      selected={
+                                        item.layout?.contentAlignment ===
+                                        "individualHeightItems"
+                                      }
+                                    >
+                                      Individual Height Items
+                                    </option>
+                                  </select>
+                                </div>
+                                <div class="nested-gap-controls">
+                                  <select
+                                    class="nested-content-gap-select"
+                                    data-index={index}
+                                  >
+                                    <option
+                                      value="0"
+                                      selected={item.layout?.contentGap === 0}
+                                    >
+                                      No gap (0px)
+                                    </option>
+                                    <option
+                                      value="16"
+                                      selected={item.layout?.contentGap === 16}
+                                    >
+                                      Small gap (16px)
+                                    </option>
+                                    <option
+                                      value="32"
+                                      selected={item.layout?.contentGap === 32}
+                                    >
+                                      Large gap (32px)
+                                    </option>
+                                  </select>
+                                </div>
+                                <label class="checkbox-label">
+                                  <input
+                                    type="checkbox"
+                                    class="nested-vertical-margins-toggle"
+                                    data-index={index}
+                                    checked={item.layout?.verticalMargins}
+                                  />
+                                  Vertical margins
+                                </label>
+                              </div>
+                              <div
+                                class="preview-grid"
+                                style="position: unset;"
+                              >
+                                {item.layout?.items?.map(
+                                  (subItem: any, subIndex: number) => (
+                                    <div
+                                      class="preview-item nested-preview-item"
+                                      data-parent-index={index}
+                                      data-index={subIndex}
+                                    >
+                                      <span>
                                         {subItem.type === "card"
                                           ? "CardBlock"
                                           : "LayoutBlock"}
-                                        <button
-                                          class="remove-nested-item"
-                                          data-parent-index={index}
-                                          data-index={subIndex}
-                                          title="Remove this item"
-                                        >
-                                          ×
-                                        </button>
-                                      </div>
-                                    ),
-                                  )}
-                                  <div class="nested-controls">
-                                    <button
-                                      class="add-nested-item"
-                                      data-parent-index={index}
-                                      data-type="card"
-                                    >
-                                      + Add Card
-                                    </button>
-                                  </div>
+                                      </span>
+                                      <button
+                                        class="remove-nested-item"
+                                        data-parent-index={index}
+                                        data-index={subIndex}
+                                        title="Remove this item"
+                                      >
+                                        ×
+                                      </button>
+                                    </div>
+                                  ),
+                                )}
+                                <div class="nested-controls">
+                                  <button
+                                    class="add-nested-item"
+                                    data-parent-index={index}
+                                  >
+                                    + Add Card
+                                  </button>
                                 </div>
                               </div>
-                            )}
-                          </span>
+                            </div>
+                          )}
                           <button class="remove-item" title="Remove this item">
                             ×
                           </button>
@@ -357,7 +340,7 @@ const initialItems = parseLayoutItems(itemsParam);
                       <button class="add-item" data-type="card"
                         >+ Add CardBlock</button
                       >
-                      <button class="add-item" data-type="grid"
+                      <button class="add-item" data-type="layout"
                         >+ Add LayoutBlock</button
                       >
                     </div>
@@ -501,8 +484,7 @@ const initialItems = parseLayoutItems(itemsParam);
   .remove-item {
     position: absolute;
     right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 8px;
     border: none;
     background: none;
     color: #666;
@@ -656,6 +638,10 @@ const initialItems = parseLayoutItems(itemsParam);
     align-items: center;
     gap: 0.5rem;
   }
+
+  .nested-preview-item {
+    background: #f8f9fa;
+  }
 </style>
 
 <script>
@@ -694,7 +680,11 @@ const initialItems = parseLayoutItems(itemsParam);
 
   function getCurrentItems(): any {
     const items: any = [];
-    document.querySelectorAll(".preview-item").forEach((item) => {
+    const topLevelItems = document.querySelectorAll(
+      ".preview-item[data-index]:not(.nested-preview-item)",
+    );
+
+    topLevelItems.forEach((item) => {
       const type = item.getAttribute("data-type") as "card" | "layout";
       if (type === "card") {
         items.push({ type: "card" });
@@ -720,8 +710,14 @@ const initialItems = parseLayoutItems(itemsParam);
           ) as HTMLInputElement
         )?.checked;
 
-        const nestedItems: any = [];
-        item.querySelectorAll(".nested-preview-item").forEach(() => {
+        // Get nested items directly from the preview grid
+        const nestedItems: any[] = [];
+        const nestedPreviewItems = item.querySelectorAll(
+          ".nested-preview-item",
+        );
+
+        // Create a new card object for each nested item
+        nestedPreviewItems.forEach(() => {
           nestedItems.push({ type: "card" });
         });
 
@@ -754,19 +750,27 @@ const initialItems = parseLayoutItems(itemsParam);
   function initializeContentControls() {
     const preview = document.getElementById("content-preview");
 
-    // Handle remove buttons
+    // Handle remove buttons for top-level items
     preview?.addEventListener("click", (e) => {
       const target = e.target as HTMLElement;
       if (target.classList.contains("remove-item")) {
         const currentLayout =
           new URLSearchParams(window.location.search).get("layout") || "12";
-        const items = getCurrentItems().filter(
-          (_: any, index: number) =>
-            index !==
-            parseInt(
-              target.closest(".preview-item")?.getAttribute("data-index") ||
-                "-1",
-            ),
+        const itemToRemove = target.closest(
+          ".preview-item:not(.nested-preview-item)",
+        );
+        if (!itemToRemove) return;
+
+        const indexToRemove = parseInt(
+          itemToRemove.getAttribute("data-index") || "-1",
+        );
+        if (indexToRemove === -1) return;
+
+        const currentItems = getCurrentItems();
+
+        // Remove the entire item (layout block or card) at once
+        const items = currentItems.filter(
+          (_: any, index: number) => index !== indexToRemove,
         );
         updateURL(currentLayout, items);
       }
@@ -775,25 +779,27 @@ const initialItems = parseLayoutItems(itemsParam);
     // Add new items
     document.querySelectorAll(".add-item").forEach((button) => {
       button.addEventListener("click", () => {
-        const currentCount = preview?.children.length ?? 0;
-        if (currentCount < 12) {
-          const currentLayout =
-            new URLSearchParams(window.location.search).get("layout") || "12";
-          const items = getCurrentItems();
-          const type = button.getAttribute("data-type") as "card" | "layout";
-          items.push(
-            type === "card"
-              ? { type: "card" }
-              : {
-                  type: "layout",
-                  layout: {
-                    type: "12", // Default to single column
-                    items: Array(2).fill({ type: "card" }),
-                  },
-                },
-          );
-          updateURL(currentLayout, items);
+        const currentLayout =
+          new URLSearchParams(window.location.search).get("layout") || "12";
+        const items = getCurrentItems();
+        const type = button.getAttribute("data-type");
+
+        if (type === "card") {
+          items.push({ type: "card" });
+        } else if (type === "layout") {
+          items.push({
+            type: "layout",
+            layout: {
+              type: "12",
+              items: [{ type: "card" }],
+              contentAlignment: "equalHeightRows",
+              contentGap: 32,
+              verticalMargins: false,
+            },
+          });
         }
+
+        updateURL(currentLayout, items);
       });
     });
   }
@@ -872,13 +878,22 @@ const initialItems = parseLayoutItems(itemsParam);
     document.addEventListener("click", (e) => {
       const target = e.target as HTMLElement;
       if (target.classList.contains("remove-nested-item")) {
+        const button = target as HTMLElement;
         const parentIndex = parseInt(
-          target.getAttribute("data-parent-index") || "0",
+          button.getAttribute("data-parent-index") || "-1",
         );
-        const index = parseInt(target.getAttribute("data-index") || "0");
+        const index = parseInt(button.getAttribute("data-index") || "-1");
+
+        if (parentIndex === -1 || index === -1) return;
+
         const items = getCurrentItems();
         if (items[parentIndex]?.layout?.items) {
-          items[parentIndex].layout!.items.splice(index, 1);
+          // Remove the nested item directly
+          const parentItems = items[parentIndex].layout.items;
+          items[parentIndex].layout.items = parentItems.filter(
+            (_: any, i: number) => i !== index,
+          );
+
           const currentLayout =
             new URLSearchParams(window.location.search).get("layout") || "12";
           updateURL(currentLayout, items);
@@ -886,7 +901,7 @@ const initialItems = parseLayoutItems(itemsParam);
       }
     });
 
-    // Handle adding nested items
+    // Update the add nested item handler
     document.addEventListener("click", (e) => {
       const target = e.target as HTMLElement;
       if (target.classList.contains("add-nested-item")) {
@@ -894,8 +909,9 @@ const initialItems = parseLayoutItems(itemsParam);
           target.getAttribute("data-parent-index") || "0",
         );
         const items = getCurrentItems();
+
         if (items[parentIndex]?.layout?.items) {
-          items[parentIndex].layout!.items.push({ type: "card" });
+          items[parentIndex].layout.items.push({ type: "card" });
           const currentLayout =
             new URLSearchParams(window.location.search).get("layout") || "12";
           updateURL(currentLayout, items);

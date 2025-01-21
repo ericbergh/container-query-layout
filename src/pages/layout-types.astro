@@ -29,7 +29,7 @@ import RootLayout from "../layouts/root_layout.astro";
               <Layout type="3-3-3-3">
                 {
                   Array.from({ length: 4 }).map((_, groupIndex) => (
-                    <LayoutContainer key={groupIndex}>
+                    <LayoutContainer>
                       <Layout type="12">
                         {Array.from({ length: 4 }).map((_, index) => (
                           <ContentArea>
