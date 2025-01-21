@@ -1,6 +1,4 @@
 ---
-import ContentArea from "./content_area.astro";
-
 export type LayoutType = "12" | "6-6" | "4-4-4" | "3-3-3-3" | "4-8" | "8-4";
 // prettier-ignore
 export type ContentAlignment = "equalHeightRows" | "individualHeightRows" | "individualHeightItems";
@@ -65,9 +63,9 @@ const {
   >
     {
       slotContent.map((content) => (
-        <ContentArea>
+        <div class="content-area">
           <Fragment set:html={content.outerHTML} />
-        </ContentArea>
+        </div>
       ))
     }
   </div>
@@ -105,6 +103,10 @@ const {
     &.individual-height-items {
       align-items: start;
     }
+  }
+
+  .content-area {
+    container: content-area / inline-size;
   }
 
   /* 

@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@astrojs/node": "^9.0.1",
-    "astro": "^5.1.7"
+    "astro": "^5.1.8"
   },
   "devDependencies": {
     "linkedom": "^0.18.6",
